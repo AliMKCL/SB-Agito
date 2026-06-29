@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  application:
+    "product"
+  datasource:
+    url: jdbc:h2:mem:testdb   # Where application connects to the H2 database
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true # Enable the H2 console, allowing logging into it via browser
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update  # Update the schema automatically depending on my additions and entities.
+    show-sql: true  # Displays the sql that is run behind the secenes by jdbc.
+
