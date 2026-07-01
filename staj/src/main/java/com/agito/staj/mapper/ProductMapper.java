@@ -14,6 +14,7 @@ public class ProductMapper {
      */
     public static ProductDto ProductEntityToDto(Product product){
         ProductDto newProductDto = new ProductDto();
+        newProductDto.setCode(product.getCode());
         newProductDto.setName(product.getName());
         newProductDto.setCategory(product.getCategory());
         newProductDto.setPrice(product.getPrice());
@@ -31,6 +32,7 @@ public class ProductMapper {
 
     public static Product ProductDtoToEntity(ProductDto productDto){
         Product newProduct = new Product();
+        newProduct.setCode(productDto.getCode());
         newProduct.setName(productDto.getName());
         newProduct.setCategory(productDto.getCategory());
         newProduct.setPrice(productDto.getPrice());
@@ -50,6 +52,7 @@ public class ProductMapper {
 
         for (Product product : products) {
             ProductDto productDto = new ProductDto();
+            productDto.setCode(product.getCode());
             productDto.setName(product.getName());
             productDto.setCategory(product.getCategory());
             productDto.setPrice(product.getPrice());
@@ -73,6 +76,7 @@ public class ProductMapper {
 
         for (ProductDto productDto : products) {
             Product product = new Product();
+            product.setCode(productDto.getCode());
             product.setName(productDto.getName());
             product.setCategory(productDto.getCategory());
             product.setPrice(productDto.getPrice());

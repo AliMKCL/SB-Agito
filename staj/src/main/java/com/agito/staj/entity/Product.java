@@ -15,7 +15,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String productId;
 
-    // kod ekle (güncellemede find ederken vs kullanılacak)
+    private String code;
 
     private String name;
 
@@ -25,7 +25,8 @@ public class Product {
 
     private int stock;
 
-    public Product(String name, String category, double price, int stock){
+    public Product(String code, String name, String category, double price, int stock){
+        this.code = code;
         this.name = name;
         this.category = category;
         this.price = price;

@@ -11,6 +11,8 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     Optional<Product> findByName(String name);
 
+    Optional<Product> findByCode(String code);
+
     //@Query
     // Criteria query:
     // producrteporisotyCustom ve İmplementation

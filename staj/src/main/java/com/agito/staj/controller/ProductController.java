@@ -2,15 +2,14 @@ package com.agito.staj.controller;
 
 import com.agito.staj.dto.ProductDto;
 import com.agito.staj.entity.Product;
-import com.agito.staj.mapper.ProductMapper;
-import com.agito.staj.service.IProductService;
+import com.agito.staj.service.ProductService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 // Controllerlar için interface implementation
 // Swagger ekle
 // Service interaface yok
@@ -19,47 +18,58 @@ import java.util.Optional;
 @RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
 public class ProductController {
 
-    private final IProductService iProductService;
-    private final ProductMapper productMapper;
+    private final ProductService productService;
 
-    public ProductController(IProductService iProductService, ProductMapper productMapper){
-        this.iProductService = iProductService;
-        this.productMapper = productMapper;
+    public ProductController(ProductService productService){
+        this.productService = productService;
     }
 
     @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto){
 
-        Product product = productMapper.ProductDtoToEntity(productDto);
-        Product newProduct = iProductService.createProduct(product); //Dto at
-        return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.ProductEntityToDto(newProduct));
+        productService.createProduct(productDto);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(productDto);
 
     }
 
     @GetMapping("/fetchAll")
     public ResponseEntity<List<ProductDto>> findAllProducts(){
-        List<Product> products = iProductService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(productMapper.ListProductEntityToDto(products));
+        List<ProductDto> products = productService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
     @GetMapping("/fetch")
-    public ResponseEntity<ProductDto> findProduct(@RequestParam String name){
-        Product product = iProductService.find(name);
-        return ResponseEntity.status(HttpStatus.FOUND).body(productMapper.ProductEntityToDto(product));
+    public ResponseEntity<ProductDto> findProduct(@RequestParam String code){
+        ProductDto productDto = productService.find(code);
+        return ResponseEntity.status(HttpStatus.FOUND).body(productDto);
     }
 
     @PutMapping(value="/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProductDto> editProduct(@RequestParam String name, @RequestBody ProductDto productDto){
-        Product product = productMapper.ProductDtoToEntity(productDto);
-        iProductService.editProduct(name, product);
-        return ResponseEntity.status(HttpStatus.OK).body(productDto);
+    public ResponseEntity<ProductDto> editProduct(@RequestParam String code, @RequestBody ProductDto productDto){
+        boolean isChanged = productService.editProduct(code, productDto);
+        if (isChanged){
+            return ResponseEntity.status(HttpStatus.OK).body(productDto);
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
 
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<ProductDto> deleteProduct(@RequestParam String name) {
-        Product product = iProductService.find(name);
-        iProductService.deleteProduct(name);
-        return ResponseEntity.status(HttpStatus.OK).body(productMapper.ProductEntityToDto(product));
+    public ResponseEntity<ProductDto> deleteProduct(@RequestParam String code) {
+        ProductDto productDto = productService.find(code);
+        boolean isDeleted = productService.deleteProduct(code);
+
+        if (isDeleted){
+            return ResponseEntity.status(HttpStatus.OK).body(productDto);
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 }
