@@ -2,6 +2,8 @@ package com.agito.staj.service;
 
 import com.agito.staj.dto.ProductDto;
 import com.agito.staj.entity.Product;
+import com.agito.staj.exception.DuplicateProductException;
+import com.agito.staj.exception.ProductNotFoundException;
 import com.agito.staj.mapper.ProductMapper;
 import com.agito.staj.repository.ProductRepository;
 import lombok.AllArgsConstructor;
@@ -16,23 +18,32 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    private final ProductMapper productMapper;
-
     public ProductDto createProduct(ProductDto productDto) {
-        Product product = productMapper.ProductDtoToEntity(productDto);
-        productRepository.save(product);
-        return productMapper.ProductEntityToDto(product);
+        Product product = ProductMapper.ProductDtoToEntity(productDto);
+
+        Optional<Product> exists = productRepository.findByCode(product.getCode());
+
+        if (exists.isPresent()){
+            throw new DuplicateProductException("There is already a product with code "+ product.getCode());
+        }
+        else {
+            productRepository.save(product);
+            return ProductMapper.ProductEntityToDto(product);
+        }
     }
 
     // kod, name, category ile arama
     // criteria query (criteria builder)
     public List<ProductDto> findAll() {
-        return productMapper.ListProductEntityToDto((productRepository.findAll()));
+        return ProductMapper.ListProductEntityToDto((productRepository.findAll()));
     }
 
     public ProductDto find(String code) {
-        Optional<Product> product = productRepository.findByCode(code);
+        Product product = productRepository.findByCode(code)
+                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code));
+        return ProductMapper.ProductEntityToDto(product);
 
+        /*
         if (product.isPresent()){
             return productMapper.ProductEntityToDto(product.get());
         }
@@ -41,38 +52,33 @@ public class ProductService {
             return null;
         }
 
+         */
+
     }
 
     public boolean editProduct(String code, ProductDto productDto) {
-        Optional<Product> productV1 = productRepository.findByCode(code);
-        Product product = productMapper.ProductDtoToEntity(productDto);
+        Product productV1 = productRepository.findByCode(code)
+                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code)
+        );
+        Product product = ProductMapper.ProductDtoToEntity(productDto);
 
-        if (productV1.isEmpty()){
-            return false;
-        }
-        else {
-            if (productV1.get().getName().equals(product.getName())){
-                productV1.get().setCode(product.getCode());
-                productV1.get().setCategory(product.getCategory());
-                productV1.get().setStock(product.getStock());
-                productV1.get().setPrice(product.getPrice());
-                productRepository.save(productV1.get());
-                return true;
-            }
+
+        if (productV1.getName().equals(product.getName())){
+            productV1.setCode(product.getCode());
+            productV1.setCategory(product.getCategory());
+            productV1.setStock(product.getStock());
+            productV1.setPrice(product.getPrice());
+            productRepository.save(productV1);
+            return true;
         }
         return false;
 
     }
 
-    public boolean deleteProduct(String code) {
-        Optional<Product> product = productRepository.findByCode(code); //findbycode olacak
-        if (product.isPresent()){
-            productRepository.delete(product.get());
-            return true;
-        }
-        else{
-            System.out.println("Product does not exist"); // Err handling
-            return false;
-        }
+    public void deleteProduct(String code) {
+        Product product = productRepository.findByCode(code)
+                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code)
+                );
+        productRepository.delete(product);
     }
 }
