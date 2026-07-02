@@ -1,8 +1,8 @@
-package com.agito.staj.controller;
+package com.agito.staj.controller.impl;
 
+import com.agito.staj.controller.IAdminProductController;
 import com.agito.staj.dto.ErrorResponseDto;
 import com.agito.staj.dto.ProductDto;
-import com.agito.staj.entity.Product;
 import com.agito.staj.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,30 +11,25 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-// Controllerlar için interface implementation
-// Swagger ekle
-
 
 @RestController
 @RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
-public class ProductController {
-
+public class AdminProductController implements IAdminProductController {
     private final ProductService productService;
 
-    public ProductController(ProductService productService){
+    public AdminProductController(ProductService productService){
         this.productService = productService;
     }
 
     @Operation(
-        summary = "Create product endpoint.",
-        description = "Endpoint used to create a product in the database."
+            summary = "Create product endpoint.",
+            description = "Endpoint used to create a product in the database."
     )
     @ApiResponses({
             @ApiResponse(
@@ -48,7 +43,7 @@ public class ProductController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Override
     public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto){
 
         productService.createProduct(productDto);
@@ -62,15 +57,15 @@ public class ProductController {
 
 
     @Operation(
-        summary = "Fetch all products endpoint.",
-        description = "Endpoint used to fetch all products in the database."
+            summary = "Fetch all products endpoint.",
+            description = "Endpoint used to fetch all products in the database."
     )
     @ApiResponse(
-        responseCode = "200",
-        description = "Products found.",
+            responseCode = "200",
+            description = "Products found.",
             content = @Content
     )
-    @GetMapping("/fetchAll")
+    @Override
     public ResponseEntity<List<ProductDto>> findAllProducts(){
         List<ProductDto> products = productService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(products);
@@ -79,8 +74,8 @@ public class ProductController {
 
 
     @Operation(
-        summary = "Fetch a singular product endpoint.",
-        description = "Endpoint used to fetch a product from the database."
+            summary = "Fetch a singular product endpoint.",
+            description = "Endpoint used to fetch a product from the database."
     )
     @ApiResponses({
             @ApiResponse(
@@ -92,10 +87,10 @@ public class ProductController {
                     description = "Product not found",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
-            ))
+                    ))
 
     })
-    @GetMapping("/fetch")
+    @Override
     public ResponseEntity<ProductDto> findProduct(
             @Parameter(
                     name = "code",
@@ -111,8 +106,8 @@ public class ProductController {
 
 
     @Operation(
-        summary = "Edit product endpoint.",
-        description = "Endpoint used to edit a product's details in the database."
+            summary = "Edit product endpoint.",
+            description = "Endpoint used to edit a product's details in the database."
     )
     @ApiResponses({
             @ApiResponse(
@@ -124,11 +119,11 @@ public class ProductController {
                     description = "Product not found",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
-            ))
+                    ))
 
 
     })
-    @PutMapping(value="/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Override
     public ResponseEntity<ProductDto> editProduct(
             @Parameter(
                     name = "code",
@@ -166,10 +161,8 @@ public class ProductController {
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
-
-
     })
-    @DeleteMapping("/delete")
+    @Override
     public ResponseEntity<Void> deleteProduct(
             @Parameter(
                     name = "code",
