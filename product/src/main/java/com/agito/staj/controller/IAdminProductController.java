@@ -112,17 +112,6 @@ public interface IAdminProductController {
     })
     @PutMapping(value="/admin/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ProductDto> editProduct(
-            @Parameter(
-                    name = "code",
-                    description = "The unique code of the product",
-                    required = true,
-                    in = ParameterIn.QUERY,
-                    example = "0001"
-            )
-            @RequestParam("code")
-                @NotBlank(message = "Code cannot be blank")
-                @Size(min = 4, max = 4, message = "Code length must be exactly 4")
-                String code,
             @Valid @RequestBody ProductDto productDto
     );
 

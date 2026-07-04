@@ -58,13 +58,12 @@ public class ProductService {
 
     /**
      *
-     * @param code
      * @param productDto
      * @return boolean value describing whether an editing was successful or failed.
      */
-    public boolean editProduct(String code, ProductDto productDto) {
-        Product productV1 = productRepository.findByCode(code)
-                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code)
+    public boolean editProduct(ProductDto productDto) {
+        Product productV1 = productRepository.findByCode(productDto.getCode())
+                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + productDto.getCode())
         );
         Product product = ProductMapper.ProductDtoToEntity(productDto);
 
