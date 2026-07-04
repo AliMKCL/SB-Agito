@@ -21,11 +21,11 @@ public class Product {
 
     private String category;
 
-    private double price;
+    private Double price;
 
-    private int stock;
+    private Integer stock;
 
-    public Product(String code, String name, String category, double price, int stock){
+    public Product(String code, String name, String category, Double price, Integer stock){
         this.code = code;
         this.name = name;
         this.category = category;

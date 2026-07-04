@@ -3,14 +3,37 @@ package com.agito.staj.exception;
 import com.agito.staj.dto.ErrorResponseDto;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.*;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        Map<String, String> validationErrors = new HashMap<>();
+        List<ObjectError> validationErrorList = ex.getBindingResult().getAllErrors(); // Get all validation checks that failed.
+
+        validationErrorList.forEach((error) -> { // For each fail, get the specifics to construct a key-value formatted output.
+            String fieldName = ((FieldError) error).getField();
+            String validationMsg = error.getDefaultMessage();
+            validationErrors.put(fieldName, validationMsg);
+        });
+        // In a case of failure, ONLY the failing fields are returned (Ex: "name": "Name cannot be null or empty")
+        return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
+    }
 
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleProductNotFoundException(ProductNotFoundException exception,

@@ -18,6 +18,12 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
+    /**
+     *
+     * @param productDto
+     * @return the created product.
+     * Creates a product inside the database from the input ProductDto object.
+     */
     public ProductDto createProduct(ProductDto productDto) {
         Product product = ProductMapper.ProductDtoToEntity(productDto);
 
@@ -34,6 +40,11 @@ public class ProductService {
 
     // kod, name, category ile arama
     // criteria query (criteria builder)
+
+    /**
+     *
+     * @return all products inside the database.
+     */
     public List<ProductDto> findAll() {
         return ProductMapper.ListProductEntityToDto((productRepository.findAll()));
     }
@@ -42,26 +53,20 @@ public class ProductService {
         Product product = productRepository.findByCode(code)
                 .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code));
         return ProductMapper.ProductEntityToDto(product);
-
-        /*
-        if (product.isPresent()){
-            return productMapper.ProductEntityToDto(product.get());
-        }
-        else {
-            System.out.println("Product not found");
-            return null;
-        }
-
-         */
-
     }
 
+
+    /**
+     *
+     * @param code
+     * @param productDto
+     * @return boolean value describing whether an editing was successful or failed.
+     */
     public boolean editProduct(String code, ProductDto productDto) {
         Product productV1 = productRepository.findByCode(code)
                 .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code)
         );
         Product product = ProductMapper.ProductDtoToEntity(productDto);
-
 
         if (productV1.getName().equals(product.getName())){
             productV1.setCode(product.getCode());
@@ -72,9 +77,17 @@ public class ProductService {
             return true;
         }
         return false;
-
     }
 
+    // CHANGE EDIT TO ONLY TAKE IN A DTO AND EDIT IF ITEM WITH ITS CODE EXISTS.
+    // RETURN THE ??
+
+
+    /**
+     *
+     * @param code
+     * Deletes the product from the database with the input code.
+     */
     public void deleteProduct(String code) {
         Product product = productRepository.findByCode(code)
                 .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code)
