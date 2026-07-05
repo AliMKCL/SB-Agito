@@ -17,13 +17,27 @@ services:
     networks:
       - staj-network
 
+  stockDB:
+    image: mysql:latest
+    container_name: stockDB
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: stockDB
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - staj-network
+
   eurekaserver:
     image: eurekaserver:latest
     container_name: eurekaserver
     ports:
       - "8070:8070"
-    networks:
-      - staj-network
     environment:
       SPRING_APPLICATION_NAME: "eurekaserver"
     healthcheck:
@@ -31,6 +45,8 @@ services:
       interval: 3s
       timeout: 3s
       retries: 10
+    networks:
+      - staj-network
 
   product-service:
     image: product:latest
@@ -54,11 +70,12 @@ services:
     ports:
       - "8090:8090"
     depends_on:
-      product-service:
-        condition: service_started
+      stockDB:
+        condition: service_healthy
       eurekaserver:
         condition: service_healthy
     environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://stockDB:3306/stockDB
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     networks:
       - staj-network
