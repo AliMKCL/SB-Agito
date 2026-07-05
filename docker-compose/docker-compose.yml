@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  productDB:
+    image: mysql:latest
+    container_name: productDB
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: productDB
+    ports:
+      - "3306:3306"
+    networks:
+      - staj-network
+
+  product-service:
+    image: product:latest
+    container_name: product-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - productDB
+    networks:
+      - staj-network
+
+networks:
+  staj-network:
+    driver: bridge
