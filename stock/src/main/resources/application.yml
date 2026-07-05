@@ -1,17 +1,14 @@
 server:
-  port: 8080
+  port: 8090
+
 spring:
   application:
-    name: "product"
-  datasource:
-    url: jdbc:mysql://productDB:3306/productDB
-    username: root
-    password: root
-  sql:
-    init:
-      mode: always
-  jpa:
-    show-sql: true  # Displays the sql that is run behind the scenes by jdbc.
+    name: "stock"
+
+  cloud:
+    loadbalancer:
+      cache:
+        enabled: true # Disables the load balancer using the cache (for debugging stuck at no instance error)
 
 
 management:
@@ -41,6 +38,8 @@ eureka:
 # Info on the Eureka Dashboard
 info:
   app:
-    name: "product"
+    name: "stock"
     description: "Ecommerce Application"
     version: "1.0.0"
+
+

@@ -1,0 +1,65 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam componentStyle rectangle
+
+package "Product Service" {
+    class ProductController {
+        == ADMIN ==
+        + fetchProduct(code): Product
+        + fetchAllProducts(): List<Product>
+        + createProduct(product): Response
+        + editProduct(product): Response
+        + deleteProduct(code): Response
+
+        == CONSUMER ==
+        + fetchProduct(code): Product
+        + fetchAllProducts(): List<Product>
+    }
+}
+
+package "Stock Service" {
+    class StockController {
+        == ADMIN ==
+        + addStock(code, quantity): void
+        + checkStock(code): Response
+        + removeStock(code, quantity): void
+        == CONSUMER ==
+        + checkStock(code): Response
+        + removeStock(code, quantity): void
+    }
+
+    interface ProductFeignClient <<OpenFeign>> {
+            + fetchProduct(code): Product
+            + editProduct(product): Response
+        }
+}
+
+package "Cart/Customer Service" {
+    class CartController {
+        == CONSUMER ==
+        + addToCart(customerId, product): Response
+        + checkout(customerId): Response
+    }
+
+    interface StockFeignClient <<OpenFeign>> {
+        + checkStock(code): Response
+        + removeStock(code, quantity): Response
+    }
+}
+
+' Relations and OpenFeign communications
+CartController ..> StockFeignClient : uses
+StockFeignClient --> StockController : HTTP Calls
+StockController --> ProductController : HTTP Calls
+
+note top of StockFeignClient
+  Communicates with Stock Service
+  to verify and update stock inventory
+end note
+
+note bottom of CartController
+  **addToCart** calls Stock.checkStock
+  **checkout** calls Stock.removeStock
+end note
+
+@enduml

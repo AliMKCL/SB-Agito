@@ -9,8 +9,28 @@ services:
       MYSQL_DATABASE: productDB
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - staj-network
+
+  eurekaserver:
+    image: eurekaserver:latest
+    container_name: eurekaserver
+    ports:
+      - "8070:8070"
+    networks:
+      - staj-network
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8070/actuator/health" ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
 
   product-service:
     image: product:latest
@@ -18,10 +38,32 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - productDB
+      productDB:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://productDB:3306/productDB
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+      - staj-network
+
+  stock-service:
+    image: stock:latest
+    container_name: stock-service
+    ports:
+      - "8090:8090"
+    depends_on:
+      product-service:
+        condition: service_started
+      eurekaserver:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     networks:
       - staj-network
 
 networks:
   staj-network:
     driver: bridge
+
