@@ -6,6 +6,7 @@ import com.agito.staj.exception.DuplicateProductException;
 import com.agito.staj.exception.ProductNotFoundException;
 import com.agito.staj.mapper.ProductMapper;
 import com.agito.staj.repository.ProductRepository;
+import com.agito.staj.service.client.StockFeignClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,8 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+
+    private final StockFeignClient stockFeignClient;
 
     /**
      *
@@ -34,12 +37,10 @@ public class ProductService {
         }
         else {
             productRepository.save(product);
+            stockFeignClient.addStock(product.getCode(), 0);
             return ProductMapper.ProductEntityToDto(product);
         }
     }
-
-    // kod, name, category ile arama
-    // criteria query (criteria builder)
 
     /**
      *
@@ -70,16 +71,12 @@ public class ProductService {
         if (productV1.getName().equals(product.getName())){
             productV1.setCode(product.getCode());
             productV1.setCategory(product.getCategory());
-            productV1.setStock(product.getStock());
             productV1.setPrice(product.getPrice());
             productRepository.save(productV1);
             return true;
         }
         return false;
     }
-
-    // CHANGE EDIT TO ONLY TAKE IN A DTO AND EDIT IF ITEM WITH ITS CODE EXISTS.
-    // RETURN THE ??
 
 
     /**
@@ -88,9 +85,15 @@ public class ProductService {
      * Deletes the product from the database with the input code.
      */
     public void deleteProduct(String code) {
-        Product product = productRepository.findByCode(code)
-                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code)
-                );
-        productRepository.delete(product);
+
+        Optional<Product> product = productRepository.findByCode(code);
+        if (product.isPresent()){
+            productRepository.delete(product.get());
+            stockFeignClient.deleteItem(code);
+        }
+        else {
+            throw new ProductNotFoundException("No product with code: " + code);
+        }
+
     }
 }

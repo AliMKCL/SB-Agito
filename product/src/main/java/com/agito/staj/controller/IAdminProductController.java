@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IAdminProductController {
-
 
     @Operation(
             summary = "Create product endpoint.",

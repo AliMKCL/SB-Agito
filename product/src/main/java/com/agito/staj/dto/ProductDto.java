@@ -43,11 +43,4 @@ public class ProductDto {
     @NotNull(message = "Price cannot be null or empty.")
     @Min(value=0)
     private Double price;
-
-    @Schema(
-            description = "Stock count of the product", example = "10"
-    )
-    @NotNull(message = "Stock cannot be null or empty.")
-    @Min(value = 0)
-    private Integer stock;
 }

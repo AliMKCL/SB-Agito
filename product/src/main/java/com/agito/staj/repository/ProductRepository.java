@@ -17,8 +17,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // Criteria query:
     // producrteporisotyCustom ve İmplementation
     // Custom --> Queryler içn
-    // Implementation--> ımpllar için
+    // Implementation--> impllar için
     // Filter board gibi, category, name... ON yaptığında seçtiğin filterlar aktif oluyor v
 
-    // Stock girişi (takibi) için ayrı bir yer
 }

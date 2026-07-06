@@ -23,13 +23,10 @@ public class Product {
 
     private Double price;
 
-    private Integer stock;
-
-    public Product(String code, String name, String category, Double price, Integer stock){
+    public Product(String code, String name, String category, Double price){
         this.code = code;
         this.name = name;
         this.category = category;
         this.price = price;
-        this.stock = stock;
     }
 }

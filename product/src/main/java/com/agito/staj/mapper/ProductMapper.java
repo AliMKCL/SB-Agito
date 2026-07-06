@@ -17,25 +17,18 @@ public class ProductMapper {
         newProductDto.setName(product.getName());
         newProductDto.setCategory(product.getCategory());
         newProductDto.setPrice(product.getPrice());
-        newProductDto.setStock(product.getStock());
         return newProductDto;
     }
 
     /**
-        Transforms a ProductDto to a Product entity.
+        Transforms a ProductDto to a Product ecdntity.
      */
-    // Validations + exceptions
-    // Category entity oluştur (parent-child olarak bağlantılı kategoriler)
-    //  kategori kodu oradan otomatik gelsin user input ile değil
-    // Doğrulamasını yap
-
     public static Product ProductDtoToEntity(ProductDto productDto){
         Product newProduct = new Product();
         newProduct.setCode(productDto.getCode());
         newProduct.setName(productDto.getName());
         newProduct.setCategory(productDto.getCategory());
         newProduct.setPrice(productDto.getPrice());
-        newProduct.setStock(productDto.getStock());
         return newProduct;
     }
 
@@ -55,7 +48,6 @@ public class ProductMapper {
             productDto.setName(product.getName());
             productDto.setCategory(product.getCategory());
             productDto.setPrice(product.getPrice());
-            productDto.setStock(product.getStock());
 
             dtoList.add(productDto);
         }
@@ -79,7 +71,6 @@ public class ProductMapper {
             product.setName(productDto.getName());
             product.setCategory(productDto.getCategory());
             product.setPrice(productDto.getPrice());
-            product.setStock(productDto.getStock());
 
             productList.add(product);
         }

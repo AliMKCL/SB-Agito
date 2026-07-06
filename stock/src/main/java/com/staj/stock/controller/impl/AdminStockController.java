@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
 public class AdminStockController implements IAdminStockController  {
 
     private StockService stockService;
@@ -27,6 +26,7 @@ public class AdminStockController implements IAdminStockController  {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
+
     @Override
     public ResponseEntity checkStock(String code) {
         return ResponseEntity.status(HttpStatus.OK).body(stockService.checkStock(code));
@@ -35,6 +35,12 @@ public class AdminStockController implements IAdminStockController  {
     @Override
     public ResponseEntity<Null> removeStock(String code, int quantity) {
         stockService.removeStock(code, quantity);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @Override
+    public ResponseEntity<Null> deleteItem(String code) {
+        stockService.deleteItem(code);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

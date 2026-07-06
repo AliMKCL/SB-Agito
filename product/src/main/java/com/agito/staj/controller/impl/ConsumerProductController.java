@@ -27,7 +27,6 @@ import java.util.List;
 
 @RestController
 @Validated
-@RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
 public class ConsumerProductController implements IConsumerProductController {
 
     private final ProductService productService;

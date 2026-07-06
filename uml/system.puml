@@ -28,10 +28,6 @@ package "Stock Service" {
         + removeStock(code, quantity): void
     }
 
-    interface ProductFeignClient <<OpenFeign>> {
-            + fetchProduct(code): Product
-            + editProduct(product): Response
-        }
 }
 
 package "Cart/Customer Service" {

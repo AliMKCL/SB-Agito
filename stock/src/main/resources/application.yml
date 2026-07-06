@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: "stock"
+  datasource:
+    url: jdbc:mysql://stockDB:3306/stockDB
+    username: root
+    password: root
+  sql:
+    init:
+      mode: always
+  jpa:
+    show-sql: true  # Displays the sql that is run behind the scenes by jdbc.
 
   cloud:
     loadbalancer:
