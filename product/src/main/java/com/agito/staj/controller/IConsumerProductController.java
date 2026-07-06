@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.MediaType;
@@ -34,7 +35,7 @@ public interface IConsumerProductController {
             content = @Content
     )
     @GetMapping("/consumer/fetchAll")
-    ResponseEntity<List<ProductDto>> findAllProducts(@RequestBody SearchProductDto searchProductDto);
+    ResponseEntity<List<ProductDto>> findAllProducts(@Valid @RequestBody SearchProductDto searchProductDto);
 
 
 

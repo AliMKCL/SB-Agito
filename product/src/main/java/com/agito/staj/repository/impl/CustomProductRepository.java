@@ -4,6 +4,7 @@ import com.agito.staj.dto.ProductDto;
 import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.entity.Product;
 import com.agito.staj.repository.ICustomProductRepository;
+import com.agito.staj.repository.ProductRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -22,9 +23,13 @@ public class CustomProductRepository implements ICustomProductRepository {
 
     private final EntityManager entityManager;
 
+    private final ProductRepository productRepository;
+
 
     @Override
     public List<Product> findAllByCriteria(SearchProductDto searchProductDto) {
+
+
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Product> criteriaQuery = criteriaBuilder.createQuery(Product.class);
 
@@ -43,6 +48,10 @@ public class CustomProductRepository implements ICustomProductRepository {
         if (searchProductDto.getCategory() != null){
             Predicate categoryPredicate = criteriaBuilder.like(root.get("category"), "%" + searchProductDto.getCategory() + "%");
             predicates.add(categoryPredicate);
+        }
+
+        if (predicates.isEmpty()){
+            return productRepository.findAll();
         }
 
         criteriaQuery.where(

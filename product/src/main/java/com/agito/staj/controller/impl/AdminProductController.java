@@ -34,7 +34,7 @@ public class AdminProductController implements IAdminProductController {
 
 
     @Override
-    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto){
+    public ResponseEntity<ProductDto> createProduct(ProductDto productDto){
         productService.createProduct(productDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -49,14 +49,14 @@ public class AdminProductController implements IAdminProductController {
     }
 
     @Override
-    public ResponseEntity<ProductDto> findProduct(@RequestParam String code){
+    public ResponseEntity<ProductDto> findProduct(String code){
         ProductDto productDto = productService.find(code);
         return ResponseEntity.status(HttpStatus.OK).body(productDto);
     }
 
 
     @Override
-    public ResponseEntity<ProductDto> editProduct(@RequestBody ProductDto productDto){
+    public ResponseEntity<ProductDto> editProduct(ProductDto productDto){
         boolean isChanged = productService.editProduct(productDto);
         if (isChanged){
             return ResponseEntity.status(HttpStatus.OK).body(productDto);
@@ -68,7 +68,7 @@ public class AdminProductController implements IAdminProductController {
 
 
     @Override
-    public ResponseEntity<Void> deleteProduct(@RequestParam String code) {
+    public ResponseEntity<Void> deleteProduct(String code) {
         productService.deleteProduct(code);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

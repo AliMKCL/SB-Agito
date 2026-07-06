@@ -44,7 +44,7 @@ public class ConsumerProductController implements IConsumerProductController {
 
 
     @Override
-    public ResponseEntity<ProductDto> findProduct(@RequestParam String code){
+    public ResponseEntity<ProductDto> findProduct(String code){
         ProductDto productDto = productService.find(code);
         return ResponseEntity.status(HttpStatus.OK).body(productDto);
     }

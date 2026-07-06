@@ -55,7 +55,7 @@ public interface IAdminProductController {
             content = @Content
     )
     @GetMapping("/admin/fetchAll")
-    ResponseEntity<List<ProductDto>> findAllProducts(@RequestBody SearchProductDto searchProductDto);
+    ResponseEntity<List<ProductDto>> findAllProducts(@Valid @RequestBody SearchProductDto searchProductDto);
 
 
 
