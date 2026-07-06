@@ -1,6 +1,5 @@
 package com.agito.staj.service.client;
 
-import jakarta.validation.constraints.Null;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,8 +11,8 @@ public interface StockFeignClient {
 
     // addStock also adds the item if not present, so it is used instead of a new CreateItem method.
     @PostMapping("/api/admin/addStock")
-    ResponseEntity<Null> addStock(@RequestParam String code, @RequestParam int quantity);
+    ResponseEntity<Void> addStock(@RequestParam String code, @RequestParam int quantity);
 
     @DeleteMapping("/api/admin/deleteItem")
-    ResponseEntity<Null> deleteItem(@RequestParam String code);
+    ResponseEntity<Void> deleteItem(@RequestParam String code);
 }

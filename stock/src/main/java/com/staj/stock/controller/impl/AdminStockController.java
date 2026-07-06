@@ -2,7 +2,6 @@ package com.staj.stock.controller.impl;
 
 import com.staj.stock.controller.IAdminStockController;
 import com.staj.stock.service.StockService;
-import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,25 +20,25 @@ public class AdminStockController implements IAdminStockController  {
     }
 
     @Override
-    public ResponseEntity<Null> addStock(String code, int quantity) {
+    public ResponseEntity addStock(String code, int quantity) {
         stockService.addStock(code, quantity);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
 
     @Override
-    public ResponseEntity checkStock(String code) {
+    public ResponseEntity<Integer> checkStock(String code) {
         return ResponseEntity.status(HttpStatus.OK).body(stockService.checkStock(code));
     }
 
     @Override
-    public ResponseEntity<Null> removeStock(String code, int quantity) {
+    public ResponseEntity removeStock(String code, int quantity) {
         stockService.removeStock(code, quantity);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @Override
-    public ResponseEntity<Null> deleteItem(String code) {
+    public ResponseEntity deleteItem(String code) {
         stockService.deleteItem(code);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

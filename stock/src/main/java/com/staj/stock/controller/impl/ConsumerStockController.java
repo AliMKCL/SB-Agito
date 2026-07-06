@@ -2,7 +2,6 @@ package com.staj.stock.controller.impl;
 
 import com.staj.stock.controller.IConsumerStockController;
 import com.staj.stock.service.StockService;
-import jakarta.validation.constraints.Null;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +24,8 @@ public class ConsumerStockController implements IConsumerStockController {
     }
 
     @Override
-    public ResponseEntity<Null> removeStock(String code, int quantity) {
+    public ResponseEntity<Void> removeStock(String code, int quantity) {
         stockService.removeStock(code, quantity);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

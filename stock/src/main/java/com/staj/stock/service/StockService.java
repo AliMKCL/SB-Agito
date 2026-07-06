@@ -1,8 +1,10 @@
 package com.staj.stock.service;
 
 import com.staj.stock.entity.Stock;
+import com.staj.stock.exception.ItemNotFoundException;
 import com.staj.stock.repository.StockRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +16,20 @@ public class StockService {
 
     private StockRepository stockRepository;
 
+    /**
+     *
+     * @param code
+     */
     public Integer checkStock(String code){
-        return stockRepository.getReferenceById(code).getQuantity();
+        Stock item = stockRepository.findById(code).orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
+        return item.getQuantity();
     }
 
+    /**
+     *
+     * @param code
+     * @param quantity
+     */
     @Transactional
     public void addStock(String code, int quantity){
         Optional<Stock> item = stockRepository.findById(code);
@@ -34,22 +46,30 @@ public class StockService {
 
     }
 
+    /**
+     *
+     * @param code
+     * @param quantity
+     */
     @Transactional
     public void removeStock(String code, int quantity){
         Stock item = stockRepository.findById(code)
-                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                        org.springframework.http.HttpStatus.NOT_FOUND, "Stock not found for code: " + code));
+                .orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
         item.setQuantity(item.getQuantity() - quantity);
         stockRepository.save(item);
     }
 
+    /**
+     *
+     * @param code
+     */
     @Transactional
     public void deleteItem(String code){
-        if (stockRepository.findById(code).isPresent()){
-            stockRepository.deleteById(code);
-        }
-
+        stockRepository.findById(code).orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
+        stockRepository.deleteById(code);
     }
 
-
 }
+
+
+
