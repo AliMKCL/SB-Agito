@@ -1,11 +1,13 @@
 package com.agito.staj.service;
 
 import com.agito.staj.dto.ProductDto;
+import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.entity.Product;
 import com.agito.staj.exception.DuplicateProductException;
 import com.agito.staj.exception.ProductNotFoundException;
 import com.agito.staj.mapper.ProductMapper;
 import com.agito.staj.repository.ProductRepository;
+import com.agito.staj.repository.impl.CustomProductRepository;
 import com.agito.staj.service.client.StockFeignClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import java.util.Optional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+
+    private final CustomProductRepository customProductRepository;
 
     private final StockFeignClient stockFeignClient;
 
@@ -46,8 +50,8 @@ public class ProductService {
      *
      * @return all products inside the database.
      */
-    public List<ProductDto> findAll() {
-        return ProductMapper.ListProductEntityToDto((productRepository.findAll()));
+    public List<ProductDto> findAll(SearchProductDto searchProductDto) {
+        return ProductMapper.ListProductEntityToDto((customProductRepository.findAllByCriteria(searchProductDto)));
     }
 
     public ProductDto find(String code) {

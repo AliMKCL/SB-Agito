@@ -2,6 +2,7 @@ package com.agito.staj.controller;
 
 import com.agito.staj.dto.ErrorResponseDto;
 import com.agito.staj.dto.ProductDto;
+import com.agito.staj.dto.SearchProductDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -54,7 +55,7 @@ public interface IAdminProductController {
             content = @Content
     )
     @GetMapping("/admin/fetchAll")
-    ResponseEntity<List<ProductDto>> findAllProducts();
+    ResponseEntity<List<ProductDto>> findAllProducts(@RequestBody SearchProductDto searchProductDto);
 
 
 

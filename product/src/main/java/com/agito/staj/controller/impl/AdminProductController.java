@@ -3,6 +3,7 @@ package com.agito.staj.controller.impl;
 import com.agito.staj.controller.IAdminProductController;
 import com.agito.staj.dto.ErrorResponseDto;
 import com.agito.staj.dto.ProductDto;
+import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,8 +43,8 @@ public class AdminProductController implements IAdminProductController {
     }
 
     @Override
-    public ResponseEntity<List<ProductDto>> findAllProducts(){
-        List<ProductDto> products = productService.findAll();
+    public ResponseEntity<List<ProductDto>> findAllProducts(SearchProductDto searchProductDto){
+        List<ProductDto> products = productService.findAll(searchProductDto);
         return ResponseEntity.status(HttpStatus.OK).body(products);
     }
 
