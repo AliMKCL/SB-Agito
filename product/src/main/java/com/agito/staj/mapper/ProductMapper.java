@@ -1,6 +1,7 @@
 package com.agito.staj.mapper;
 
 import com.agito.staj.dto.ProductDto;
+import com.agito.staj.entity.Category;
 import com.agito.staj.entity.Product;
 import org.springframework.stereotype.Component;
 
@@ -15,19 +16,19 @@ public class ProductMapper {
         ProductDto newProductDto = new ProductDto();
         newProductDto.setCode(product.getCode());
         newProductDto.setName(product.getName());
-        newProductDto.setCategory(product.getCategory());
+        newProductDto.setCategoryId(product.getCategory().getId());
         newProductDto.setPrice(product.getPrice());
         return newProductDto;
     }
 
     /**
-        Transforms a ProductDto to a Product ecdntity.
+        Transforms a ProductDto to a Product entity.
      */
-    public static Product ProductDtoToEntity(ProductDto productDto){
+    public static Product ProductDtoToEntity(ProductDto productDto, Category category){
         Product newProduct = new Product();
         newProduct.setCode(productDto.getCode());
         newProduct.setName(productDto.getName());
-        newProduct.setCategory(productDto.getCategory());
+        newProduct.setCategory(category);
         newProduct.setPrice(productDto.getPrice());
         return newProduct;
     }
@@ -46,7 +47,7 @@ public class ProductMapper {
             ProductDto productDto = new ProductDto();
             productDto.setCode(product.getCode());
             productDto.setName(product.getName());
-            productDto.setCategory(product.getCategory());
+            productDto.setCategoryId(product.getCategory().getId());
             productDto.setPrice(product.getPrice());
 
             dtoList.add(productDto);
@@ -58,7 +59,7 @@ public class ProductMapper {
     /**
         Transforms a list of ProductDto's to a list of Product entities.
      */
-    public static List<Product> ListProductDtoToEntity(List<ProductDto> products){
+    public static List<Product> ListProductDtoToEntity(List<ProductDto> products, Category category){
         List<Product> productList = new java.util.ArrayList<>();
 
         if (products == null) {
@@ -69,7 +70,7 @@ public class ProductMapper {
             Product product = new Product();
             product.setCode(productDto.getCode());
             product.setName(productDto.getName());
-            product.setCategory(productDto.getCategory());
+            product.setCategory(category);
             product.setPrice(productDto.getPrice());
 
             productList.add(product);

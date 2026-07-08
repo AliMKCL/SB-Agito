@@ -22,6 +22,9 @@ import java.util.List;
 @RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IAdminProductController {
 
+
+    // Body alan Fetchler POST olmalı
+
     @Operation(
             summary = "Create product endpoint.",
             description = "Endpoint used to create a product in the database."
@@ -92,6 +95,9 @@ public interface IAdminProductController {
     );
 
 
+
+    // Editte category leaf enforce edilmiyor
+    // create ile aynı olanları ortak bir yerden çekebilirsin
 
     @Operation(
             summary = "Edit product endpoint.",

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+// path apiConsumer, alttakiler sırf fetch... kalsın
 @RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IConsumerProductController {
 

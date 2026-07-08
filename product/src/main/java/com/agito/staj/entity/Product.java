@@ -19,11 +19,13 @@ public class Product {
 
     private String name;
 
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private Double price;
 
-    public Product(String code, String name, String category, Double price){
+    public Product(String code, String name, Category category, Double price){
         this.code = code;
         this.name = name;
         this.category = category;

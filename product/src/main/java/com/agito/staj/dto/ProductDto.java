@@ -1,5 +1,6 @@
 package com.agito.staj.dto;
 
+import com.agito.staj.entity.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
@@ -33,9 +34,8 @@ public class ProductDto {
     @Schema(
             description = "Category of the product", example = "drink"
     )
-    @NotEmpty(message = "Category cannot be null or empty.")
-    @NotNull
-    private String category;
+    @NotNull(message = "Category ID is required")
+    private Integer categoryId;
 
     @Schema(
             description = "Price of the product", example = "5.99"
