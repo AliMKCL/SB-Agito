@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path="/apiAdmin", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IAdminStockController {
 
     /**
@@ -30,7 +30,7 @@ public interface IAdminStockController {
                     description = "Stock added to item"
             )
     })
-    @PostMapping("/admin/addStock")
+    @PostMapping("/addStock")
     ResponseEntity addStock(
             @Parameter(
                     name = "code",
@@ -67,7 +67,7 @@ public interface IAdminStockController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @GetMapping("/admin/checkStock")
+    @GetMapping("/checkStock")
     ResponseEntity<Integer> checkStock(
             @Parameter(
                     name = "code",
@@ -99,7 +99,7 @@ public interface IAdminStockController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @PostMapping("/admin/removeStock")
+    @PostMapping("/removeStock")
     ResponseEntity removeStock(
             @Parameter(
                     name = "code",
@@ -136,7 +136,7 @@ public interface IAdminStockController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @DeleteMapping("/admin/deleteItem")
+    @DeleteMapping("/deleteItem")
     ResponseEntity deleteItem(
             @Parameter(
                     name = "code",

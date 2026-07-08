@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path="/apiConsumer", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IConsumerStockController {
 
     /**
@@ -36,7 +36,7 @@ public interface IConsumerStockController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @GetMapping("/consumer/checkStock")
+    @GetMapping("/checkStock")
     ResponseEntity<Integer> checkStock(
             @Parameter(
                     name = "code",
@@ -67,7 +67,7 @@ public interface IConsumerStockController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @PostMapping("/consumer/removeStock")
+    @PostMapping("/removeStock")
     ResponseEntity removeStock(
             @Parameter(
                     name = "code",

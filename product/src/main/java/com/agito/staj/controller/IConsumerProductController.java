@@ -15,15 +15,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// path apiConsumer, alttakiler sırf fetch... kalsın
-@RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path="/apiConsumer", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IConsumerProductController {
 
     @Operation(
@@ -35,7 +31,7 @@ public interface IConsumerProductController {
             description = "Products found.",
             content = @Content
     )
-    @GetMapping("/consumer/fetchAll")
+    @PostMapping("/fetchAll")
     ResponseEntity<List<ProductDto>> findAllProducts(@Valid @RequestBody SearchProductDto searchProductDto);
 
 
@@ -57,7 +53,7 @@ public interface IConsumerProductController {
                     ))
 
     })
-    @GetMapping("/consumer/fetch")
+    @GetMapping("/fetch")
     ResponseEntity<ProductDto> findProduct(
             @Parameter(
                     name = "code",

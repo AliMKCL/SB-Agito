@@ -19,11 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping(path="/api", produces={MediaType.APPLICATION_JSON_VALUE})
+@RequestMapping(path="/apiAdmin", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IAdminProductController {
-
-
-    // Body alan Fetchler POST olmalı
 
     @Operation(
             summary = "Create product endpoint.",
@@ -41,7 +38,7 @@ public interface IAdminProductController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @PostMapping(value = "/admin/create", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ProductDto> createProduct(
             @Valid @RequestBody ProductDto productDto
     );
@@ -57,7 +54,7 @@ public interface IAdminProductController {
             description = "Products found.",
             content = @Content
     )
-    @GetMapping("/admin/fetchAll")
+    @PostMapping("/fetchAll")
     ResponseEntity<List<ProductDto>> findAllProducts(@Valid @RequestBody SearchProductDto searchProductDto);
 
 
@@ -79,7 +76,7 @@ public interface IAdminProductController {
                     ))
 
     })
-    @GetMapping("/admin/fetch")
+    @GetMapping("/fetch")
     ResponseEntity<ProductDto> findProduct(
             @Parameter(
                     name = "code",
@@ -117,7 +114,7 @@ public interface IAdminProductController {
 
 
     })
-    @PutMapping(value="/admin/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value="/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ProductDto> editProduct(
             @Valid @RequestBody ProductDto productDto
     );
@@ -141,7 +138,7 @@ public interface IAdminProductController {
                             schema = @Schema(implementation = ErrorResponseDto.class)
                     ))
     })
-    @DeleteMapping("/admin/delete")
+    @DeleteMapping("/delete")
     ResponseEntity<Void> deleteProduct(
             @Parameter(
                     name = "code",

@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface StockFeignClient {
 
     // addStock also adds the item if not present, so it is used instead of a new CreateItem method.
-    @PostMapping("/api/admin/addStock")
+    @PostMapping("/apiAdmin/addStock")
     ResponseEntity<Void> addStock(@RequestParam String code, @RequestParam int quantity);
 
-    @DeleteMapping("/api/admin/deleteItem")
+    @DeleteMapping("/apiAdmin/deleteItem")
     ResponseEntity<Void> deleteItem(@RequestParam String code);
 }
