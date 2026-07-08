@@ -57,13 +57,8 @@ public class AdminProductController implements IAdminProductController {
 
     @Override
     public ResponseEntity<ProductDto> editProduct(ProductDto productDto){
-        boolean isChanged = productService.editProduct(productDto);
-        if (isChanged){
-            return ResponseEntity.status(HttpStatus.OK).body(productDto);
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        productService.editProduct(productDto);
+        return ResponseEntity.status(HttpStatus.OK).body(productDto);
     }
 
 

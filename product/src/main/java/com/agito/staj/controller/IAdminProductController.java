@@ -106,11 +106,19 @@ public interface IAdminProductController {
                     description = "Product edited"
             ),
             @ApiResponse(
-                    responseCode = "404",
+                    responseCode = "400",
                     description = "Product not found",
                     content = @Content(
                             schema = @Schema(implementation = ErrorResponseDto.class)
-                    ))
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid category",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
 
 
     })

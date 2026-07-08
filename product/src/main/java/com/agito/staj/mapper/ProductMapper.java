@@ -10,7 +10,9 @@ import java.util.List;
 public class ProductMapper {
 
     /**
-    Transforms a Product entity to a ProductDto
+     *
+     * @param product
+     * @return the ProductDto object created from the fields of the input Product entity product.
      */
     public static ProductDto ProductEntityToDto(Product product){
         ProductDto newProductDto = new ProductDto();
@@ -22,7 +24,11 @@ public class ProductMapper {
     }
 
     /**
-        Transforms a ProductDto to a Product entity.
+     *
+     * @param productDto
+     * @param category
+     * @return the Product entity product created from the fields of the input ProductDto.
+     *
      */
     public static Product ProductDtoToEntity(ProductDto productDto, Category category){
         Product newProduct = new Product();
@@ -34,7 +40,9 @@ public class ProductMapper {
     }
 
     /**
-        Transforms a list of Product entities to a list of ProductDto's.
+     *
+     * @param products
+     * @return a list of ProductDto's created from the fields of the input list of Product entities.
      */
     public static List<ProductDto> ListProductEntityToDto(List<Product> products){
         List<ProductDto> dtoList = new java.util.ArrayList<>();
@@ -57,7 +65,10 @@ public class ProductMapper {
     }
 
     /**
-        Transforms a list of ProductDto's to a list of Product entities.
+     *
+     * @param products
+     * @param category
+     * @return a list of Product entity objects created from the fields of the input list of ProductDto's.
      */
     public static List<Product> ListProductDtoToEntity(List<ProductDto> products, Category category){
         List<Product> productList = new java.util.ArrayList<>();

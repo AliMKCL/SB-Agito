@@ -4,10 +4,7 @@ import com.agito.staj.dto.ProductDto;
 import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.entity.Category;
 import com.agito.staj.entity.Product;
-import com.agito.staj.exception.CategoryNotFoundException;
-import com.agito.staj.exception.DuplicateProductException;
-import com.agito.staj.exception.InvalidCategoryException;
-import com.agito.staj.exception.ProductNotFoundException;
+import com.agito.staj.exception.*;
 import com.agito.staj.mapper.ProductMapper;
 import com.agito.staj.repository.CategoryRepository;
 import com.agito.staj.repository.ProductRepository;
@@ -40,7 +37,6 @@ public class ProductService {
      */
     public ProductDto createProduct(ProductDto productDto) {
 
-
         Category category = categoryRepository.findById(productDto.getCategoryId())
                 .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productDto.getCategoryId()));
 
@@ -51,10 +47,9 @@ public class ProductService {
             );
         }
 
-        Optional<Product> exists = productRepository.findByCode(productDto.getCode());
-
-        if (exists.isPresent()){
+        if (productRepository.findByCode(productDto.getCode()).isPresent()){
             throw new DuplicateProductException("There is already a product with code "+ productDto.getCode());
+
         }
 
         // ProductValidator, bu methodun throwladığı errrorlar içi nayrı  bir class
@@ -87,31 +82,27 @@ public class ProductService {
      * @param productDto
      * @return boolean value describing whether an editing was successful or failed.
      */
-    public boolean editProduct(ProductDto productDto) {
-        // .isPresent() tarzı
-        Product productV1 = productRepository.findByCode(productDto.getCode())
-                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + productDto.getCode())
-        );
+    public void editProduct(ProductDto productDto) {
+
+        if (productRepository.findByCode(productDto.getCode()).isEmpty()) {
+            throw new ProductNotFoundException("No product with code: " + productDto.getCode());
+        };
 
         if (categoryRepository.findById(productDto.getCategoryId()).isEmpty()){
             throw new InvalidCategoryException("The new category of the item does not exist");
         }
 
-        Product product = ProductMapper.ProductDtoToEntity(productDto, productV1.getCategory());
-
-        // MAPPPER DEĞİŞİKLİĞİ
-        // + validator
-        // Code değiştirelemez durumda şu anda
-        // 99daki code ile product çekip içerisine dto'dan gelen şeyleri girmkekl lazım
-        // yeni prdıuct yaratmak eerine var olanı güncelle, .save() et.
-        if (productV1.getCode().equals(product.getCode())){
-            productV1.setName(product.getName());
-            productV1.setCategory(product.getCategory());
-            productV1.setPrice(product.getPrice());
-            productRepository.save(productV1);
-            return true;
+        if (!categoryRepository.findById(productDto.getCategoryId()).get().getChildren().isEmpty()){
+            throw new CategoryNotLeafException("The new category of the item is not a leaf category");
         }
-        return false;
+
+        // productRepository için Dto'dan entitye çevirmek yerine olan entityyi değiştirdiğim için mappera gerek yok.
+        Product product = productRepository.findByCode(productDto.getCode()).get();
+        product.setName(productDto.getName());
+        product.setCode(productDto.getCode());
+        product.setCategory(categoryRepository.findById(productDto.getCategoryId()).get());
+        product.setPrice(productDto.getPrice());
+        productRepository.save(product);
     }
 
 
