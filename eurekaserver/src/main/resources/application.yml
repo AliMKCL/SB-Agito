@@ -9,7 +9,11 @@ eureka:
   instance:
     hostname: localhost
   client:
-    fetchRegistry: false      # Prevents Eureka server from fetching registry details
-    registerWithEureka: false   # Prevents Eureka server from registering with itself
+    fetchRegistry: false  # We don't want eurekaeserver to fetch registry details of other microservices.
+    # eurekaserver will never call microservices.
+    # The microservices themselves will have this true.
+    registerWithEureka: false # Don't register yourself (Expose your details in the service discovery registry)
+    # No need for the SDR itself to register in itself.
     serviceUrl:
+      # URL where the eurekaserver exposes its functionality.
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/

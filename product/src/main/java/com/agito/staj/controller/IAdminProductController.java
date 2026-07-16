@@ -92,10 +92,6 @@ public interface IAdminProductController {
     );
 
 
-
-    // Editte category leaf enforce edilmiyor
-    // create ile aynı olanları ortak bir yerden çekebilirsin
-
     @Operation(
             summary = "Edit product endpoint.",
             description = "Endpoint used to edit a product's details in the database."

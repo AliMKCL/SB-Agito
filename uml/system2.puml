@@ -1,0 +1,79 @@
+@startuml
+allowmixing
+skinparam classAttributeIconSize 0
+skinparam componentStyle rectangle
+
+' Gateway Entry Point
+package "Gateway" {
+    class GatewayServer {
+        .. Security ..
+        - validateOAuth2Token(): boolean
+        .. Routing ..
+        + routeRequest(request): Response
+    }
+}
+
+package "Product Service" {
+    class ProductController {
+        == INTERNAL ONLY ==
+        + fetchProduct(code): Product
+        + fetchAllProducts(): List<Product>
+        + createProduct(product): Response
+        + editProduct(product): Response
+        + deleteProduct(code): Response
+    }
+}
+
+package "Stock Service" {
+    class StockController {
+        == INTERNAL ONLY ==
+        + addStock(code, quantity): void
+        + checkStock(code): Response
+        + removeStock(code, quantity): void
+    }
+}
+
+package "Cart/Customer Service" {
+    class CartController {
+        == INTERNAL ONLY ==
+        + addToCart(customerId, product): Response
+        + checkout(customerId): Response
+    }
+
+    interface StockFeignClient <<OpenFeign>> {
+        + checkStock(code): Response
+        + removeStock(code, quantity): Response
+    }
+}
+
+' External Actors / Entry Points
+actor "Admin / Consumer" as Client
+
+' Routing through Gateway
+Client --> GatewayServer : External Requests (with OAuth2)
+GatewayServer --> ProductController : Proxies Product Requests
+GatewayServer --> StockController : Proxies Stock Requests
+GatewayServer --> CartController : Proxies Cart Requests
+
+' Internal Microservice Communication
+CartController ..> StockFeignClient : uses
+StockFeignClient --> StockController : HTTP Calls
+StockController --> ProductController : HTTP Calls
+
+note top of GatewayServer
+  Acts as the single entry point.
+  Validates OAuth2 tokens before
+  routing to internal services.
+end note
+
+note top of StockFeignClient
+  Communicates with Stock Service
+  to verify and update stock inventory
+end note
+
+note bottom of CartController
+  **addToCart** calls Stock.checkStock
+  **checkout** calls Stock.removeStock
+end note
+
+@enduml
