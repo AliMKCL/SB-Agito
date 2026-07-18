@@ -25,7 +25,9 @@ public class ConsumerStockController implements IConsumerStockController {
 
     @Override
     public ResponseEntity<Void> removeStock(String code, int quantity) {
-        stockService.removeStock(code, quantity);
+        stockService.removeSoldStock(code, quantity);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
+
+
 }

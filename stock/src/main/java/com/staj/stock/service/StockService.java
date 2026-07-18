@@ -1,13 +1,17 @@
 package com.staj.stock.service;
 
 import com.staj.stock.entity.Stock;
+import com.staj.stock.entity.StockSale;
 import com.staj.stock.exception.ItemNotFoundException;
+import com.staj.stock.exception.StockOutOfBoundsException;
 import com.staj.stock.repository.StockRepository;
+import com.staj.stock.repository.StockSaleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -15,6 +19,8 @@ import java.util.Optional;
 public class StockService {
 
     private StockRepository stockRepository;
+
+    private StockSaleRepository stockSaleRepository;
 
     /**
      *
@@ -50,6 +56,7 @@ public class StockService {
      *
      * @param code
      * @param quantity
+     * Admin method of removing stock (does not count as a sale).
      */
     @Transactional
     public void removeStock(String code, int quantity){
@@ -62,11 +69,41 @@ public class StockService {
     /**
      *
      * @param code
+     * @param quantity
+     * Consumer method of removing stock (counts as a sale)
+     */
+    @Transactional
+    public void removeSoldStock(String code, int quantity){
+        Stock item = stockRepository.findById(code)
+                .orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
+        if (quantity > item.getQuantity()){
+            throw new StockOutOfBoundsException(("Not enough stock available"));
+        }
+        item.setQuantity(item.getQuantity() - quantity);
+
+        StockSale stockSale = createStockSaleObject(code, quantity, item.getUnitSalePrice());
+        stockSaleRepository.save(stockSale);
+        stockRepository.save(item);
+    }
+
+    /**
+     *
+     * @param code
      */
     @Transactional
     public void deleteItem(String code){
         stockRepository.findById(code).orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
         stockRepository.deleteById(code);
+    }
+
+    public StockSale createStockSaleObject(String code, int quantity, double unitSalePrice){
+        return new StockSale(
+                code = code,
+                quantity * unitSalePrice,
+                quantity,
+                "",
+                LocalDateTime.now());
+
     }
 
 }
