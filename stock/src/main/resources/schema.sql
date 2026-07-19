@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `stock_entry` (
     `code` varchar(100) NOT NULL,
     `quantity_added` int NOT NULL,
     `unit_price` decimal(10, 2) NOT NULL,
-    `total_price` decimal(10, 2) NOT NULL,
+    `total_price_paid` decimal(10, 2) NOT NULL,
     `vendor` varchar(255),
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`code`) REFERENCES `stock`(`code`) ON DELETE CASCADE

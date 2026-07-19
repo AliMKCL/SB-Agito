@@ -189,4 +189,42 @@ public interface IAdminStockController {
                     in = ParameterIn.QUERY,
                     example = "0001"
             )@RequestParam String code);
+
+
+    /**
+     *
+     * @param code
+     */
+    @Operation(
+            summary = "Edit item endpoint.",
+            description = "Endpoint used edit the unitSalePrice of a stock item (only called by the Product service)."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Item edited"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Item not found",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    ))
+    })
+    @PutMapping("/editItem")
+    ResponseEntity editItem(
+            @Parameter(
+                    name = "code",
+                    description = "The unique code of the product",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "0001"
+            )@RequestParam String code,
+            @Parameter(
+                    name = "unitPrice",
+                    description = "The unit price of the product",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "10.0"
+            )@RequestParam double unitPrice);
 }

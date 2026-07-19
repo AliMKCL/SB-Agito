@@ -96,13 +96,16 @@ public class ProductService {
             throw new CategoryNotLeafException("The new category of the item is not a leaf category");
         }
 
-        // productRepository için Dto'dan entitye çevirmek yerine olan entityyi değiştirdiğim için mappera gerek yok.
+
         Product product = productRepository.findByCode(productDto.getCode()).get();
         product.setName(productDto.getName());
         product.setCode(productDto.getCode());
         product.setCategory(categoryRepository.findById(productDto.getCategoryId()).get());
         product.setPrice(productDto.getPrice());
         productRepository.save(product);
+
+        // Change the unit sale price of the item inside StockDB as well.
+        stockFeignClient.editItem(product.getCode(), product.getPrice());
     }
 
 

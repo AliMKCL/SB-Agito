@@ -123,6 +123,18 @@ public class StockService {
 
     }
 
+
+    public void editUnitSalePrice(String code, double unitPrice){
+        Optional<Stock> item = stockRepository.findById(code);
+
+        if (item.isEmpty()){
+            throw new ItemNotFoundException("Item not found in stock database with code: " + code);
+        }
+
+        item.get().setUnitSalePrice(unitPrice);
+        stockRepository.save(item.get());
+    }
+
 }
 
 

@@ -49,4 +49,10 @@ public class AdminStockController implements IAdminStockController  {
         stockService.deleteItem(code);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+
+    @Override
+    public ResponseEntity editItem(String code, double unitPrice) {
+        stockService.editUnitSalePrice(code, unitPrice);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
 }

@@ -2,9 +2,8 @@ package com.staj.stock.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -19,8 +18,8 @@ public class StockEntry {
     @Column(name = "quantity_added")
     private int quantityAdded;
 
-    @Column(name = "total_price")
-    private double totalPrice;
+    @Column(name = "total_price_paid")
+    private double totalPricePaid;
 
     @Column(name = "unit_price")
     private double unitPrice;
@@ -28,7 +27,7 @@ public class StockEntry {
     private String vendor;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
 
 }
