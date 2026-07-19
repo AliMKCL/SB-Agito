@@ -1,12 +1,15 @@
 package com.staj.stock.service;
 
 import com.staj.stock.entity.Stock;
+import com.staj.stock.entity.StockEntry;
 import com.staj.stock.entity.StockSale;
 import com.staj.stock.exception.ItemNotFoundException;
 import com.staj.stock.exception.StockOutOfBoundsException;
+import com.staj.stock.repository.StockEntryRepository;
 import com.staj.stock.repository.StockRepository;
 import com.staj.stock.repository.StockSaleRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +24,8 @@ public class StockService {
     private StockRepository stockRepository;
 
     private StockSaleRepository stockSaleRepository;
+
+    private StockEntryRepository stockEntryRepository;
 
     /**
      *
@@ -69,6 +74,20 @@ public class StockService {
 
     }
 
+    @Transactional
+    public void addStockVendor(String code, int quantity, double totalPricePaid, String vendor){
+        Optional<Stock> item = stockRepository.findById(code);
+        if (item.isPresent()){
+            StockEntry stockEntry = createStockEntryObject(code, quantity, totalPricePaid, vendor);
+            stockEntryRepository.save(stockEntry);
+            item.get().setQuantity(item.get().getQuantity() + quantity);
+            stockRepository.save(item.get());
+        }
+        else {
+            throw new ItemNotFoundException("No item found with code: " + code);
+        };
+    }
+
     /**
      *
      * @param code
@@ -115,12 +134,22 @@ public class StockService {
 
     public StockSale createStockSaleObject(String code, int quantity, double unitSalePrice){
         return new StockSale(
-                code = code,
+                code,
                 quantity * unitSalePrice,
                 quantity,
                 "",
                 LocalDateTime.now());
 
+    }
+
+    public StockEntry createStockEntryObject(String code, int quantity, double totalPricePaid, String vendor){
+        return new StockEntry(
+                code,
+                quantity,
+                totalPricePaid,
+                totalPricePaid / quantity,
+                vendor,
+                LocalDateTime.now());
     }
 
 

@@ -91,6 +91,48 @@ public interface IAdminStockController {
 
 
 
+    @Operation(
+            summary = "Add stock endpoint.",
+            description = "Endpoint used to add stock to an item in the stock database."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Stock added to item"
+            )
+    })
+    @PostMapping("/addStockVendor")
+    ResponseEntity addStockVendor(
+            @Parameter(
+                    name = "code",
+                    description = "The unique code of the product",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "0001"
+            )@RequestParam String code,
+            @Parameter(
+                    name = "quantity",
+                    description = "The quantity of the product available in stock",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "10"
+            )@RequestParam int quantity,
+            @Parameter(
+                    name = "totalPricePaid",
+                    description = "The total price paid for all the products",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "1800.00")
+            @RequestParam double totalPricePaid,
+            @Parameter(
+                    name = "vendor",
+                    description = "The name of the vendor the products were bought from.",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "Amazon")
+            @RequestParam String vendor);
+
+
     /**
      *
      * @param code

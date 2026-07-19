@@ -6,8 +6,16 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Data
 public class StockEntry {
+
+    public StockEntry(String code, int quantity_added, double total_price_paid, double unit_price, String vendor, LocalDateTime createdAt){
+        this.code = code;
+        this.quantityAdded = quantity_added;
+        this.totalPricePaid = total_price_paid;
+        this.unitPrice = unit_price;
+        this.vendor = vendor;
+        this.createdAt = createdAt;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
