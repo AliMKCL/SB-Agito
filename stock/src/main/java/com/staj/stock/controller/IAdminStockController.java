@@ -19,6 +19,48 @@ public interface IAdminStockController {
      *
      * @param code
      * @param quantity
+     * @param unitPrice
+     * Endpoint for adding an entry in the stock database automatically, at product creation.
+     */
+    @Operation(
+            summary = "Add stock endpoint.",
+            description = "Endpoint used to add stock to an item in the stock database."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Stock added to item"
+            )
+    })
+    @PostMapping("/addStockAuto")
+    ResponseEntity addStockAuto(
+            @Parameter(
+                    name = "code",
+                    description = "The unique code of the product",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "0001"
+            )@RequestParam String code,
+            @Parameter(
+                    name = "quantity",
+                    description = "The quantity of the product available in stock",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "10"
+            )@RequestParam int quantity,
+            @Parameter(
+                    name = "unitPrice",
+                    description = "The price of 1 instance of the product.",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "10.0"
+            ) @RequestParam double unitPrice);
+
+    /**
+     *
+     * @param code
+     * @param quantity
+     * Endpoint for adding stock manually (After entry in the stock table for the item is created).
      */
     @Operation(
             summary = "Add stock endpoint.",
@@ -46,6 +88,8 @@ public interface IAdminStockController {
                     in = ParameterIn.QUERY,
                     example = "10"
             )@RequestParam int quantity);
+
+
 
     /**
      *

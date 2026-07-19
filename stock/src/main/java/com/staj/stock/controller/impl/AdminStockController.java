@@ -20,7 +20,14 @@ public class AdminStockController implements IAdminStockController  {
     }
 
     @Override
+    public ResponseEntity addStockAuto(String code, int quantity, double unitPrice) {
+        stockService.addStockCreate(code, quantity, unitPrice);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @Override
     public ResponseEntity addStock(String code, int quantity) {
+
         stockService.addStock(code, quantity);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

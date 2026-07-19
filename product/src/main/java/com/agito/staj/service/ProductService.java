@@ -57,7 +57,7 @@ public class ProductService {
         Product product = ProductMapper.ProductDtoToEntity(productDto, category);
 
         productRepository.save(product);
-        stockFeignClient.addStock(product.getCode(), 0);
+        stockFeignClient.addStockAuto(product.getCode(), 0, product.getPrice());
         return ProductMapper.ProductEntityToDto(product);
     }
 

@@ -35,20 +35,37 @@ public class StockService {
      *
      * @param code
      * @param quantity
+     * For adding an entry in the stock database automatically, at product creation.
      */
     @Transactional
-    public void addStock(String code, int quantity){
-        Optional<Stock> item = stockRepository.findById(code);
-        if (item.isPresent()){
-            item.get().setQuantity(item.get().getQuantity() + quantity);
-            stockRepository.save(item.get());
+    public void addStockCreate(String code, int quantity, double unitPrice) {
+        if (stockRepository.findById(code).isPresent()) {
+            throw new RuntimeException("Should not be possible to reach here, duplicate checked already.");
         }
-        else {
-            Stock newStock = new Stock();
-            newStock.setCode(code);
-            newStock.setQuantity(0);
-            stockRepository.save(newStock);
-        };
+        Stock newStock = new Stock();
+        newStock.setCode(code);
+        newStock.setQuantity(quantity);
+        newStock.setUnitSalePrice(unitPrice);
+        stockRepository.save(newStock);
+    }
+
+
+        /**
+         *
+         * @param code
+         * @param quantity
+         * For adding stock manually (After entry in the stock table for the item is created).
+         */
+        @Transactional
+        public void addStock(String code, int quantity){
+            Optional<Stock> item = stockRepository.findById(code);
+            if (item.isPresent()){
+                item.get().setQuantity(item.get().getQuantity() + quantity);
+                stockRepository.save(item.get());
+            }
+            else {
+                throw new ItemNotFoundException("No item found with code: " + code);
+            };
 
     }
 
