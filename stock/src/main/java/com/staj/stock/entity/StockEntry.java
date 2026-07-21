@@ -2,10 +2,16 @@ package com.staj.stock.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
+@NoArgsConstructor
+@Getter
+@Setter
 public class StockEntry {
 
     public StockEntry(String code, int quantity_added, double total_price_paid, double unit_price, String vendor, LocalDateTime createdAt){

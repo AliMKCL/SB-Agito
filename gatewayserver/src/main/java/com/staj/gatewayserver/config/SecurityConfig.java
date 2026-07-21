@@ -20,6 +20,7 @@ public class SecurityConfig {
         serverHttpSecurity.authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/stock/apiAdmin/**").hasRole("ADMIN")
                         .pathMatchers("/stock/apiConsumer/**").hasRole("CONSUMER")
+                        .pathMatchers("/stock/apiAnalyst/**").hasRole("ANALYST")
                         .pathMatchers("/product/apiAdmin/**").hasRole("ADMIN")
                         .pathMatchers("/product/apiConsumer/**").hasRole("CONSUMER")
                         .anyExchange().permitAll()) // Allow all else without authentication (actuator endpoints)

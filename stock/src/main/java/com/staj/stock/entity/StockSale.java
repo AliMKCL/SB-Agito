@@ -2,12 +2,14 @@ package com.staj.stock.entity;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@NoArgsConstructor
+@Getter
+@Setter
 public class StockSale {
 
     public StockSale(String code, double payment, int amount, String buyerName, LocalDateTime soldAt){
