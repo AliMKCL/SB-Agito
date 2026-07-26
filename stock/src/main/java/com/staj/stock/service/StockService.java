@@ -16,6 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.springframework.web.multipart.MultipartFile;
+import org.apache.poi.ss.usermodel.*;
+import java.io.InputStream;
+import java.util.Iterator;
 
 @AllArgsConstructor
 @Service
@@ -164,6 +168,110 @@ public class StockService {
         stockRepository.save(item.get());
     }
 
+    /**
+     * Imports StockEntry records from an Excel file.
+     * Updates corresponding stock quantities.
+     */
+    @Transactional
+    public void importStockFromExcel(MultipartFile file) {
+        try (InputStream is = file.getInputStream();
+             Workbook workbook = WorkbookFactory.create(is)) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rows = sheet.iterator();
+
+            // Skip 1st row (headers)
+            if (rows.hasNext()) {
+                rows.next();
+            }
+
+            while (rows.hasNext()) {
+                Row currentRow = rows.next();
+
+                Cell cellCode = currentRow.getCell(0);
+                Cell cellQuantity = currentRow.getCell(1);
+                Cell cellPrice = currentRow.getCell(2);
+                Cell cellVendor = currentRow.getCell(3);
+
+                if (cellCode == null || cellCode.getCellType() == CellType.BLANK) {
+                    continue; // Skip empty rows
+                }
+
+                String code = getCellValueAsString(cellCode);
+                int quantity = (int) getCellValueAsDouble(cellQuantity);
+                double totalPricePaid = getCellValueAsDouble(cellPrice);
+                String vendor = getCellValueAsString(cellVendor);
+
+                if (code.isEmpty() || quantity <= 0) {
+                    throw new IllegalArgumentException("Invalid row data: code cannot be empty and quantity must be greater than 0.");
+                }
+
+                addStockVendor(code, quantity, totalPricePaid, vendor);
+            }
+        } catch (Exception e) {
+            if (e instanceof ItemNotFoundException || e instanceof IllegalArgumentException) {
+                throw (RuntimeException) e;
+            }
+            throw new RuntimeException("Failed to parse Excel file: " + e.getMessage(), e);
+        }
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                double numericValue = cell.getNumericCellValue();
+                if (numericValue == (long) numericValue) {
+                    return String.format("%d", (long) numericValue);
+                } else {
+                    return String.valueOf(numericValue);
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                try {
+                    return cell.getStringCellValue();
+                } catch (Exception ex) {
+                    return String.valueOf(cell.getNumericCellValue());
+                }
+            default:
+                return "";
+        }
+    }
+
+    private double getCellValueAsDouble(Cell cell) {
+        if (cell == null) {
+            return 0.0;
+        }
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return cell.getNumericCellValue();
+            case STRING:
+                try {
+                    return Double.parseDouble(cell.getStringCellValue().trim());
+                } catch (NumberFormatException e) {
+                    return 0.0;
+                }
+            case BOOLEAN:
+                return cell.getBooleanCellValue() ? 1.0 : 0.0;
+            case FORMULA:
+                try {
+                    return cell.getNumericCellValue();
+                } catch (Exception ex) {
+                    try {
+                        return Double.parseDouble(cell.getStringCellValue().trim());
+                    } catch (Exception e) {
+                        return 0.0;
+                    }
+                }
+            default:
+                return 0.0;
+        }
+    }
 }
 
 
