@@ -8,6 +8,7 @@ import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.entity.Category;
 import com.agito.staj.entity.Product;
 import com.agito.staj.exception.*;
+import com.agito.staj.validator.ProductValidator;
 import com.agito.staj.mapper.ProductMapper;
 import com.agito.staj.repository.CategoryRepository;
 import com.agito.staj.repository.IProductRepository;
@@ -47,20 +48,17 @@ public class ProductService {
      */
     public ProductDto createProduct(ProductDto productDto) {
 
-        Category category = categoryRepository.findById(productDto.getCategoryId())
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + productDto.getCategoryId()));
+        Category category = ProductValidator.validateCategoryExists(
+                categoryRepository.findById(productDto.getCategoryId()),
+                productDto.getCategoryId()
+        );
 
-        if (!category.getChildren().isEmpty()) {
-            throw new InvalidCategoryException(
-                    "Products can only be assigned to leaf categories (end of inheritance line). " +
-                            "Category '" + category.getName() + "' is a parent category."
-            );
-        }
+        ProductValidator.validateCategoryIsLeaf(category);
 
-        if (productRepository.findByCode(productDto.getCode()).isPresent()){
-            throw new DuplicateProductException("There is already a product with code "+ productDto.getCode());
-
-        }
+        ProductValidator.validateProductNotDuplicate(
+                productRepository.findByCode(productDto.getCode()).isPresent(),
+                productDto.getCode()
+        );
 
         // ProductValidator, bu methodun throwladığı errrorlar içi nayrı  bir class
 
@@ -89,8 +87,10 @@ public class ProductService {
     }
 
     public ProductDto find(String code) {
-        Product product = productRepository.findByCode(code)
-                .orElseThrow(() -> new ProductNotFoundException("No product with code: " + code));
+        Product product = ProductValidator.validateProductExists(
+                productRepository.findByCode(code),
+                code
+        );
         return ProductMapper.ProductEntityToDto(product);
     }
 
@@ -102,17 +102,15 @@ public class ProductService {
      */
     public void editProduct(ProductDto productDto) {
 
-        if (productRepository.findByCode(productDto.getCode()).isEmpty()) {
-            throw new ProductNotFoundException("No product with code: " + productDto.getCode());
-        };
+        ProductValidator.validateProductExists(
+                productRepository.findByCode(productDto.getCode()),
+                productDto.getCode()
+        );
 
-        if (categoryRepository.findById(productDto.getCategoryId()).isEmpty()){
-            throw new InvalidCategoryException("The new category of the item does not exist");
-        }
-
-        if (!categoryRepository.findById(productDto.getCategoryId()).get().getChildren().isEmpty()){
-            throw new CategoryNotLeafException("The new category of the item is not a leaf category");
-        }
+        ProductValidator.validateCategoryLeafForEdit(
+                categoryRepository.findById(productDto.getCategoryId()),
+                productDto.getCategoryId()
+        );
 
 
         Product product = productRepository.findByCode(productDto.getCode()).get();
@@ -140,13 +138,11 @@ public class ProductService {
      * Deletes the product from the database with the input code.
      */
     public void deleteProduct(String code) {
-        Optional<Product> product = productRepository.findByCode(code);
-        if (product.isPresent()){
-            sendDeleteCommunication(code);
-        }
-        else {
-            throw new ProductNotFoundException("No product with code: " + code);
-        }
+        ProductValidator.validateProductExists(
+                productRepository.findByCode(code),
+                code
+        );
+        sendDeleteCommunication(code);
     }
 
     private void sendDeleteCommunication(String code) {
@@ -157,23 +153,19 @@ public class ProductService {
     }
 
     public void deleteProductLocal(String code) {
-        Optional<Product> product = productRepository.findByCode(code);
-        if (product.isPresent()){
-            productRepository.delete(product.get());
-        }
-        else {
-            throw new ProductNotFoundException("No product with code: " + code);
-        }
+        Product product = ProductValidator.validateProductExists(
+                productRepository.findByCode(code),
+                code
+        );
+        productRepository.delete(product);
     }
 
     public void updateCommSwitch(String code){
-        Optional<Product> product = productRepository.findByCode(code);
-        if (product.isPresent()){
-            product.get().setCommCompleted(true);
-            productRepository.save(product.get());
-        }
-        else {
-            throw new ProductNotFoundException("No product with code: " + code);
-        }
+        Product product = ProductValidator.validateProductExists(
+                productRepository.findByCode(code),
+                code
+        );
+        product.setCommCompleted(true);
+        productRepository.save(product);
     }
 }

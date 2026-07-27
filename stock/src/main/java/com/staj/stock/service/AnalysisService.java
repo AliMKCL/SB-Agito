@@ -4,6 +4,7 @@ import com.staj.stock.entity.Stock;
 import com.staj.stock.entity.StockEntry;
 import com.staj.stock.entity.StockSale;
 import com.staj.stock.exception.ItemNotFoundException;
+import com.staj.stock.validator.StockValidator;
 import com.staj.stock.repository.StockEntryRepository;
 import com.staj.stock.repository.StockRepository;
 import com.staj.stock.repository.StockSaleRepository;
@@ -74,8 +75,7 @@ public class AnalysisService {
      * Based on all entries in stockEntry and stockSale tables for that product.
      */
     public ProfitAnalysisReport getProductExpectedProfitReport(String code) {
-        Stock stock = stockRepository.findById(code)
-                .orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
+        Stock stock = StockValidator.validateStockExists(stockRepository.findById(code), code);
 
         List<StockSale> sales = stockSaleRepository.findByCode(code);
         List<StockEntry> entries = stockEntryRepository.findByCode(code);

@@ -3,6 +3,7 @@ package com.staj.stock.service;
 import com.staj.stock.dto.ProdCreateCommDto;
 import com.staj.stock.dto.ProdDeleteCommDto;
 import com.staj.stock.dto.ProdEditCommDto;
+import com.staj.stock.validator.StockValidator;
 import com.staj.stock.entity.Stock;
 import com.staj.stock.entity.StockEntry;
 import com.staj.stock.entity.StockSale;
@@ -46,7 +47,7 @@ public class StockService {
      * @param code
      */
     public Integer checkStock(String code){
-        Stock item = stockRepository.findById(code).orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
+        Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
         return item.getQuantity();
     }
 
@@ -58,9 +59,7 @@ public class StockService {
      */
     @Transactional
     public void addStockCreate(String code, int quantity, double unitPrice) {
-        if (stockRepository.findById(code).isPresent()) {
-            throw new RuntimeException("Should not be possible to reach here, duplicate checked already.");
-        }
+        StockValidator.validateStockNotDuplicate(stockRepository.findById(code).isPresent());
         Stock newStock = new Stock();
         newStock.setCode(code);
         newStock.setQuantity(quantity);
@@ -84,29 +83,21 @@ public class StockService {
          */
         @Transactional
         public void addStock(String code, int quantity){
-            Optional<Stock> item = stockRepository.findById(code);
-            if (item.isPresent()){
-                item.get().setQuantity(item.get().getQuantity() + quantity);
-                stockRepository.save(item.get());
-            }
-            else {
-                throw new ItemNotFoundException("No item found with code: " + code);
-            };
+            Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
+            item.setQuantity(item.getQuantity() + quantity);
+            stockRepository.save(item);
 
     }
 
     @Transactional
     public void addStockVendor(String code, int quantity, double totalPricePaid, String vendor){
-        Optional<Stock> item = stockRepository.findById(code);
-        if (item.isPresent()){
+        Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
+        if (true){
             StockEntry stockEntry = createStockEntryObject(code, quantity, totalPricePaid, vendor);
             stockEntryRepository.save(stockEntry);
-            item.get().setQuantity(item.get().getQuantity() + quantity);
-            stockRepository.save(item.get());
+            item.setQuantity(item.getQuantity() + quantity);
+            stockRepository.save(item);
         }
-        else {
-            throw new ItemNotFoundException("No item found with code: " + code);
-        };
     }
 
     /**
@@ -117,8 +108,7 @@ public class StockService {
      */
     @Transactional
     public void removeStock(String code, int quantity){
-        Stock item = stockRepository.findById(code)
-                .orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
+        Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
         item.setQuantity(item.getQuantity() - quantity);
         stockRepository.save(item);
     }
@@ -131,11 +121,8 @@ public class StockService {
      */
     @Transactional
     public void removeSoldStock(String code, int quantity){
-        Stock item = stockRepository.findById(code)
-                .orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
-        if (quantity > item.getQuantity()){
-            throw new StockOutOfBoundsException(("Not enough stock available"));
-        }
+        Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
+        StockValidator.validateStockSufficiency(quantity, item.getQuantity());
         item.setQuantity(item.getQuantity() - quantity);
 
         StockSale stockSale = createStockSaleObject(code, quantity, item.getUnitSalePrice());
@@ -149,7 +136,13 @@ public class StockService {
      */
     @Transactional
     public void deleteItem(String code){
-        stockRepository.findById(code).orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
+        StockValidator.validateStockExists(stockRepository.findById(code), code);
+        // Delay added manually to simulate a slow stockDB.
+        try {
+            Thread.sleep(5000); // Artificial delay to test async behavior
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         stockRepository.deleteById(code);
         sendDeleteCommunication(code);
     }
@@ -183,15 +176,11 @@ public class StockService {
 
 
     public void editUnitSalePrice(String code, double unitPrice){
-        Optional<Stock> item = stockRepository.findById(code);
+        Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
 
-        if (item.isEmpty()){
-            throw new ItemNotFoundException("Item not found in stock database with code: " + code);
-        }
-
-        item.get().setUnitSalePrice(unitPrice);
-        stockRepository.save(item.get());
-        sendEditCommunication(item.get());
+        item.setUnitSalePrice(unitPrice);
+        stockRepository.save(item);
+        sendEditCommunication(item);
     }
 
     private void sendEditCommunication(Stock stock) {
@@ -236,9 +225,7 @@ public class StockService {
                 double totalPricePaid = getCellValueAsDouble(cellPrice);
                 String vendor = getCellValueAsString(cellVendor);
 
-                if (code.isEmpty() || quantity <= 0) {
-                    throw new IllegalArgumentException("Invalid row data: code cannot be empty and quantity must be greater than 0.");
-                }
+                StockValidator.validateImportData(code, quantity);
 
                 addStockVendor(code, quantity, totalPricePaid, vendor);
             }
