@@ -13,6 +13,32 @@ spring:
       mode: always
   jpa:
     show-sql: true  # Displays the sql that is run behind the scenes by jdbc.
+  cloud:
+    function:
+      definition: confirmNewProduct;confirmDeleteProduct;confirmEditProduct
+    stream:
+      bindings:
+        registerNewProduct-out-0: # Output binding, sent when product is created. Received by stock-service.
+          destination: start-product-created
+          group: ${spring.application.name}
+        confirmNewProduct-in-0: # Due to naming similarity, the function confirmNewProduct is ran if a message arrives?
+          destination: finish-product-created
+        registerDeleteProduct-out-0:
+          destination: start-product-deleted
+          group: ${spring.application.name}
+        confirmDeleteProduct-in-0:
+          destination: finish-product-deleted
+        registerEditProduct-out-0:
+          destination: start-product-edited
+          group: ${spring.application.name}
+        confirmEditProduct-in-0:
+          destination: finish-product-edited
+
+      kafka:
+        binder:
+          brokers:
+            - localhost:9092
+
 
 
 management:

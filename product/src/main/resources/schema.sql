@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `product` (
     `name` varchar(100) NOT NULL,
     `category_id` int NOT NULL,
     `price` double NOT NULL,
+    `comm_completed` boolean,
     FOREIGN KEY (`category_id`) REFERENCES `category`(`id`)
 );
 

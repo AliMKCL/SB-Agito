@@ -18,7 +18,25 @@ spring:
     loadbalancer:
       cache:
         enabled: true # Disables the load balancer using the cache (for debugging stuck at no instance error)
-
+    function:
+      definition: createNewProduct;deleteProduct;editProduct
+    stream:
+      bindings:
+        createNewProduct-in-0: # Receives event when product-service creates a product.
+          destination: start-product-created
+        confirmNewProduct-out-0: # Sends an event when stock service creates the product in its database.
+          destination: finish-product-created
+          group: ${spring.application.name}
+        deleteProduct-in-0:
+          destination: start-product-deleted
+        confirmDeleteProduct-out-0:
+          destination: finish-product-deleted
+          group: ${spring.application.name}
+        editProduct-in-0:
+          destination: start-product-edited
+        confirmEditProduct-out-0:
+          destination: finish-product-edited
+          group: ${spring.application.name}
 
 management:
   endpoints:

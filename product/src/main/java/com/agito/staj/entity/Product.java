@@ -25,10 +25,14 @@ public class Product {
 
     private Double price;
 
-    public Product(String code, String name, Category category, Double price){
+    @Column(name="comm_completed")
+    private boolean commCompleted;
+
+    public Product(String code, String name, Category category, Double price, boolean commCompleted){
         this.code = code;
         this.name = name;
         this.category = category;
         this.price = price;
+        this.commCompleted = commCompleted;
     }
 }

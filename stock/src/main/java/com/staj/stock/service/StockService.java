@@ -1,5 +1,8 @@
 package com.staj.stock.service;
 
+import com.staj.stock.dto.ProdCreateCommDto;
+import com.staj.stock.dto.ProdDeleteCommDto;
+import com.staj.stock.dto.ProdEditCommDto;
 import com.staj.stock.entity.Stock;
 import com.staj.stock.entity.StockEntry;
 import com.staj.stock.entity.StockSale;
@@ -9,7 +12,10 @@ import com.staj.stock.repository.StockEntryRepository;
 import com.staj.stock.repository.StockRepository;
 import com.staj.stock.repository.StockSaleRepository;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.Local;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +36,10 @@ public class StockService {
     private StockSaleRepository stockSaleRepository;
 
     private StockEntryRepository stockEntryRepository;
+
+    private static final Logger log = LoggerFactory.getLogger(StockService.class);
+
+    private final StreamBridge streamBridge;
 
     /**
      *
@@ -56,8 +66,15 @@ public class StockService {
         newStock.setQuantity(quantity);
         newStock.setUnitSalePrice(unitPrice);
         stockRepository.save(newStock);
+        sendCommunication(newStock);
     }
 
+    private void sendCommunication(Stock stock) {
+        var prodCreateCommDto = new ProdCreateCommDto(stock.getCode(), stock.getUnitSalePrice());
+        log.info("***** Sending ack that product row in stock-db successfully created: {}", prodCreateCommDto);
+        var result = streamBridge.send("confirmNewProduct-out-0", prodCreateCommDto);
+        log.info("***** Is the Communication request successfully triggered ? : {}", result);
+    }
 
         /**
          *
@@ -134,6 +151,14 @@ public class StockService {
     public void deleteItem(String code){
         stockRepository.findById(code).orElseThrow(() -> new ItemNotFoundException("Item not found in stock database with code: " + code));
         stockRepository.deleteById(code);
+        sendDeleteCommunication(code);
+    }
+
+    private void sendDeleteCommunication(String code) {
+        var prodDeleteCommDto = new ProdDeleteCommDto(code);
+        log.info("***** Sending ack that product row in stock-db successfully deleted: {}", prodDeleteCommDto);
+        var result = streamBridge.send("confirmDeleteProduct-out-0", prodDeleteCommDto);
+        log.info("***** Is the Delete Communication request successfully triggered ? : {}", result);
     }
 
     public StockSale createStockSaleObject(String code, int quantity, double unitSalePrice){
@@ -166,7 +191,16 @@ public class StockService {
 
         item.get().setUnitSalePrice(unitPrice);
         stockRepository.save(item.get());
+        sendEditCommunication(item.get());
     }
+
+    private void sendEditCommunication(Stock stock) {
+        var prodEditCommDto = new ProdEditCommDto(stock.getCode(), stock.getUnitSalePrice());
+        log.info("***** Sending ack that product row in stock-db successfully edited: {}", prodEditCommDto);
+        var result = streamBridge.send("confirmEditProduct-out-0", prodEditCommDto);
+        log.info("***** Is the Edit Communication request successfully triggered ? : {}", result);
+    }
+
 
     /**
      * Imports StockEntry records from an Excel file.

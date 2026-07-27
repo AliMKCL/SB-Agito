@@ -1,17 +1,15 @@
 package com.agito.staj.repository.impl;
 
-import com.agito.staj.dto.ProductDto;
 import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.entity.Category;
 import com.agito.staj.entity.Product;
 import com.agito.staj.repository.CategoryRepository;
 import com.agito.staj.repository.ICustomProductRepository;
-import com.agito.staj.repository.ProductRepository;
+import com.agito.staj.repository.IProductRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +24,7 @@ public class CustomProductRepository implements ICustomProductRepository {
 
     private final EntityManager entityManager;
 
-    private final ProductRepository productRepository;
+    private final IProductRepository productRepository;
 
     private final CategoryRepository categoryRepository;
 
