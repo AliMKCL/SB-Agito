@@ -3,6 +3,7 @@ package com.staj.stock.service;
 import com.staj.stock.dto.ProdCreateCommDto;
 import com.staj.stock.dto.ProdDeleteCommDto;
 import com.staj.stock.dto.ProdEditCommDto;
+import com.staj.stock.schedulers.StockCheckScheduler;
 import com.staj.stock.validator.StockValidator;
 import com.staj.stock.entity.Stock;
 import com.staj.stock.entity.StockEntry;
@@ -12,6 +13,7 @@ import com.staj.stock.exception.StockOutOfBoundsException;
 import com.staj.stock.repository.StockEntryRepository;
 import com.staj.stock.repository.StockRepository;
 import com.staj.stock.repository.StockSaleRepository;
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +44,8 @@ public class StockService {
     private static final Logger log = LoggerFactory.getLogger(StockService.class);
 
     private final StreamBridge streamBridge;
+
+    private final StockCheckScheduler stockCheckScheduler;
 
     /**
      *
@@ -207,7 +212,7 @@ public class StockService {
             if (rows.hasNext()) {
                 rows.next();
             }
-
+            // Column name ile yapılabilir
             while (rows.hasNext()) {
                 Row currentRow = rows.next();
 
@@ -292,6 +297,10 @@ public class StockService {
             default:
                 return 0.0;
         }
+    }
+
+    public void manualRunStockScheduler() throws MessagingException, IOException {
+        stockCheckScheduler.checkStockBelowThreshold();
     }
 }
 

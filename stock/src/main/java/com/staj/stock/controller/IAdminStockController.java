@@ -8,9 +8,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.mail.MessagingException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RequestMapping(path="/apiAdmin", produces={MediaType.APPLICATION_JSON_VALUE})
 public interface IAdminStockController {
@@ -269,4 +272,25 @@ public interface IAdminStockController {
                     in = ParameterIn.QUERY,
                     example = "10.0"
             )@RequestParam double unitPrice);
+
+
+    @Operation(
+            summary = "Manually run stock scheduler endpoint.",
+            description = "Endpoint to run the stock scheduler manually."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "StockSchedular ran successfully."
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "An error occured.",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    ))
+    })
+    @GetMapping("/runStockScheduler")
+    ResponseEntity runStockScheduler() throws MessagingException, IOException;
 }
+

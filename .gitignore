@@ -31,3 +31,8 @@ bin/
 
 cert.pem
 key.pem
+
+.env
+credentials.json
+
+.idea

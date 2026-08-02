@@ -2,6 +2,7 @@ package com.staj.stock.controller.impl;
 
 import com.staj.stock.controller.IAdminStockController;
 import com.staj.stock.service.StockService;
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
 
 @RestController
 public class AdminStockController implements IAdminStockController  {
@@ -57,6 +60,12 @@ public class AdminStockController implements IAdminStockController  {
     @Override
     public ResponseEntity editItem(String code, double unitPrice) {
         stockService.editUnitSalePrice(code, unitPrice);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @Override
+    public ResponseEntity runStockScheduler() throws MessagingException, IOException {
+        stockService.manualRunStockScheduler();
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

@@ -29,4 +29,5 @@ public class StockValidator {
             throw new IllegalArgumentException("Invalid row data: code cannot be empty and quantity must be greater than 0.");
         }
     }
+
 }

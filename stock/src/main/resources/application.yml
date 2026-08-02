@@ -13,6 +13,8 @@ spring:
       mode: always
   jpa:
     show-sql: true  # Displays the sql that is run behind the scenes by jdbc.
+  config:
+    import: "optional:file:.env[.properties]"
 
   cloud:
     loadbalancer:
