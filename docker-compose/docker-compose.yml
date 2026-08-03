@@ -59,6 +59,9 @@ services:
       KC_HTTP_ENABLED: "true"           # Ensure HTTP is enabled
       KC_PROXY_HEADERS: "xforwarded"
       KC_HEALTH_ENABLED: "true"         # Enable health endpoint for healthcheck
+
+      # Force Keycloak to identify the issuer as the external https endpoint at port 8443 (not itself at 8080).
+      KC_HOSTNAME_URL: "https://localhost:8443"
     command: "start-dev"
     networks:
       - staj-network
@@ -109,6 +112,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
+      KEYCLOAK_CLIENT_SECRET: "DgPqEDvQEI9SsbGeXDBWZamqqTU8tSp1"
     networks:
       - staj-network
     depends_on:
