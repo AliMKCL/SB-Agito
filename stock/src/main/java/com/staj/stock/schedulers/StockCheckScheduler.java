@@ -29,14 +29,14 @@ public class StockCheckScheduler {
         this.mailService = mailService;
     }
 
-    @Value("${MAIL_ADDR}")
+    @Value("${MAIL_ADDR:test@example.com}")
     private String mailAddr;
 
 
     /**
      * Method called by the scheduler every day to send a mail regarding low stock.
      */
-    @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Istanbul")
+    @Scheduled(cron = "0 0 1 * * *", zone = "Europe/Istanbul")
     public void checkStockBelowThreshold() throws MessagingException, IOException {
 
         // Threshold defined by 10, form here for now.

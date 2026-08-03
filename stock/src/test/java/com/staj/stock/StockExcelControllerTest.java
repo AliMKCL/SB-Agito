@@ -17,12 +17,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
+import org.springframework.test.context.ActiveProfiles;
+
 import java.io.ByteArrayOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class StockExcelControllerTest {
 
     @Autowired
@@ -119,5 +122,110 @@ public class StockExcelControllerTest {
         assertThrows(RuntimeException.class, () -> {
             stockExcelController.uploadExcel(file);
         });
+    }
+
+    @Test
+    void testUploadExcel_SuccessWithStringNumbers() throws Exception {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Stock Entries");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("code");
+        header.createCell(1).setCellValue("quantity");
+        header.createCell(2).setCellValue("totalPricePaid");
+        header.createCell(3).setCellValue("vendor");
+
+        Row dataRow = sheet.createRow(1);
+        dataRow.createCell(0).setCellValue("0001");
+        dataRow.createCell(1).setCellValue("5"); 
+        dataRow.createCell(2).setCellValue("80.00"); 
+        dataRow.createCell(3).setCellValue("Test Vendor");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        byte[] bytes = bos.toByteArray();
+        workbook.close();
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "stock_entries.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                bytes
+        );
+
+        ResponseEntity<Void> response = stockExcelController.uploadExcel(file);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        Stock updatedStock = stockRepository.findById("0001").orElseThrow();
+        assertEquals(15, updatedStock.getQuantity());
+    }
+
+    @Test
+    void testUploadExcel_InvalidStringForQuantity() throws Exception {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Stock Entries");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("code");
+        header.createCell(1).setCellValue("quantity");
+        header.createCell(2).setCellValue("totalPricePaid");
+        header.createCell(3).setCellValue("vendor");
+
+        Row dataRow = sheet.createRow(1);
+        dataRow.createCell(0).setCellValue("0001");
+        dataRow.createCell(1).setCellValue("abc"); 
+        dataRow.createCell(2).setCellValue(80.0);
+        dataRow.createCell(3).setCellValue("Test Vendor");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        byte[] bytes = bos.toByteArray();
+        workbook.close();
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "stock_entries.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                bytes
+        );
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            stockExcelController.uploadExcel(file);
+        });
+        assertEquals("Row 2: Expected a numerical value in column 'quantity', but found text: \"abc\".", exception.getMessage());
+    }
+
+    @Test
+    void testUploadExcel_EmptyCellForPrice() throws Exception {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Stock Entries");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("code");
+        header.createCell(1).setCellValue("quantity");
+        header.createCell(2).setCellValue("totalPricePaid");
+        header.createCell(3).setCellValue("vendor");
+
+        Row dataRow = sheet.createRow(1);
+        dataRow.createCell(0).setCellValue("0001");
+        dataRow.createCell(1).setCellValue(5);
+        dataRow.createCell(3).setCellValue("Test Vendor");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        byte[] bytes = bos.toByteArray();
+        workbook.close();
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "stock_entries.xlsx",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                bytes
+        );
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            stockExcelController.uploadExcel(file);
+        });
+        assertEquals("Row 2: Column 'totalPricePaid' is empty but a numerical value was expected.", exception.getMessage());
     }
 }

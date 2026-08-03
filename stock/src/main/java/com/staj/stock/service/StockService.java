@@ -226,8 +226,8 @@ public class StockService {
                 }
 
                 String code = getCellValueAsString(cellCode);
-                int quantity = (int) getCellValueAsDouble(cellQuantity);
-                double totalPricePaid = getCellValueAsDouble(cellPrice);
+                int quantity = (int) getCellValueAsDouble(cellQuantity, "quantity", currentRow.getRowNum());
+                double totalPricePaid = getCellValueAsDouble(cellPrice, "totalPricePaid", currentRow.getRowNum());
                 String vendor = getCellValueAsString(cellVendor);
 
                 StockValidator.validateImportData(code, quantity);
@@ -269,33 +269,33 @@ public class StockService {
         }
     }
 
-    private double getCellValueAsDouble(Cell cell) {
-        if (cell == null) {
-            return 0.0;
+    private double getCellValueAsDouble(Cell cell, String columnName, int rowIndex) {
+        if (cell == null || cell.getCellType() == org.apache.poi.ss.usermodel.CellType.BLANK) {
+            throw new IllegalArgumentException(String.format("Row %d: Column '%s' is empty but a numerical value was expected.", rowIndex + 1, columnName));
         }
         switch (cell.getCellType()) {
             case NUMERIC:
                 return cell.getNumericCellValue();
             case STRING:
+                String stringVal = cell.getStringCellValue().trim();
                 try {
-                    return Double.parseDouble(cell.getStringCellValue().trim());
+                    return Double.parseDouble(stringVal);
                 } catch (NumberFormatException e) {
-                    return 0.0;
+                    throw new IllegalArgumentException(String.format("Row %d: Expected a numerical value in column '%s', but found text: \"%s\".", rowIndex + 1, columnName, stringVal));
                 }
-            case BOOLEAN:
-                return cell.getBooleanCellValue() ? 1.0 : 0.0;
             case FORMULA:
                 try {
                     return cell.getNumericCellValue();
                 } catch (Exception ex) {
                     try {
-                        return Double.parseDouble(cell.getStringCellValue().trim());
+                        String valFormula = cell.getStringCellValue().trim();
+                        return Double.parseDouble(valFormula);
                     } catch (Exception e) {
-                        return 0.0;
+                        throw new IllegalArgumentException(String.format("Row %d: Expected a formula yielding a numerical value in column '%s'.", rowIndex + 1, columnName));
                     }
                 }
             default:
-                return 0.0;
+                throw new IllegalArgumentException(String.format("Row %d: Expected a numerical value in column '%s', but found cell type: %s.", rowIndex + 1, columnName, cell.getCellType()));
         }
     }
 

@@ -12,6 +12,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +21,7 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 
 @Configuration
+@Profile("!test") // Use the configuration only if the active profile is not "test". Required for testing (use mock mail service instead).
 public class GmailConfig {
 
     @Bean
