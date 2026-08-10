@@ -17,6 +17,8 @@ import com.agito.staj.service.client.StockFeignClient;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
@@ -53,14 +55,14 @@ public class ProductService {
                 productDto.getCategoryId()
         );
 
+        // Category veritabanından çekmek yerine redis cacheden alsın
+
         ProductValidator.validateCategoryIsLeaf(category);
 
         ProductValidator.validateProductNotDuplicate(
                 productRepository.findByCode(productDto.getCode()).isPresent(),
                 productDto.getCode()
         );
-
-        // ProductValidator, bu methodun throwladığı errrorlar içi nayrı  bir class
 
         Product product = ProductMapper.ProductDtoToEntity(productDto, category);
 
@@ -86,6 +88,7 @@ public class ProductService {
         return ProductMapper.ListProductEntityToDto((customProductRepository.findAllByCriteria(searchProductDto)));
     }
 
+    @Cacheable(value = "products", key = "#code")
     public ProductDto find(String code) {
         Product product = ProductValidator.validateProductExists(
                 productRepository.findByCode(code),
@@ -100,6 +103,7 @@ public class ProductService {
      * @param productDto
      * @return boolean value describing whether an editing was successful or failed.
      */
+    @CacheEvict(value = "products", key="#productDto.getCode()")
     public void editProduct(ProductDto productDto) {
 
         ProductValidator.validateProductExists(
@@ -137,6 +141,7 @@ public class ProductService {
      * @param code
      * Deletes the product from the database with the input code.
      */
+    @CacheEvict(value = "products", key = "#code")
     public void deleteProduct(String code) {
         ProductValidator.validateProductExists(
                 productRepository.findByCode(code),
@@ -152,6 +157,7 @@ public class ProductService {
         log.info("Is the Delete Communication request successfully triggered ? : {}", result);
     }
 
+    @CacheEvict(value = "products", key = "#code")
     public void deleteProductLocal(String code) {
         Product product = ProductValidator.validateProductExists(
                 productRepository.findByCode(code),

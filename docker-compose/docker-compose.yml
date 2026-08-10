@@ -1,5 +1,14 @@
 services:
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - staj-network
+
+
   kafka:
     image: apache/kafka:4.3.1
     hostname: kafka
@@ -148,11 +157,15 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://productDB:3306/productDB
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
       SERVER_PORT: 8085
       SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:29092
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8085/actuator/health" ]
       interval: 5s

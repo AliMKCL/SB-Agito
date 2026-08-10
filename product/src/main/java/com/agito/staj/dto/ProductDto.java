@@ -7,13 +7,17 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 @Schema(
         name = "Product",
         description = "Schema to hold product information"
 )
+@NoArgsConstructor
 @Data
-public class ProductDto {
+public class ProductDto implements Serializable {
 
     @Schema(
             description = "Item code of the product", example = "001"
