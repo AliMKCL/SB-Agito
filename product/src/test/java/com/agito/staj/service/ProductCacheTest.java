@@ -4,6 +4,7 @@ import com.agito.staj.dto.ProductDto;
 import com.agito.staj.entity.Category;
 import com.agito.staj.entity.Product;
 import com.agito.staj.repository.IProductRepository;
+import com.agito.staj.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -36,6 +37,9 @@ public class ProductCacheTest {
     @MockitoBean
     private IProductRepository productRepository;
 
+    @MockitoBean
+    private CategoryRepository categoryRepository;
+
     @Autowired
     private CacheManager cacheManager;
 
@@ -46,6 +50,9 @@ public class ProductCacheTest {
         // Clear caches before each test
         if (cacheManager.getCache("products") != null) {
             cacheManager.getCache("products").clear();
+        }
+        if (cacheManager.getCache("categories") != null) {
+            cacheManager.getCache("categories").clear();
         }
 
         Category category = new Category();
@@ -118,5 +125,41 @@ public class ProductCacheTest {
         diff = endTime - startTime;
         log.info("Product not found in cache, retreived in: {} ms", diff);
         verify(productRepository, times(3)).findByCode("0001");
+    }
+
+    @Test
+    public void testCategoryCaching() throws InterruptedException {
+        Category category = new Category();
+        category.setId(10);
+        category.setName("Books");
+
+        // Stub categoryRepository findById to simulate a slow DB lookup
+        when(categoryRepository.findById(10)).thenAnswer(invocation -> {
+            Thread.sleep(100);
+            return Optional.of(category);
+        });
+
+        // 1st call: Cache miss. Hits database (mocked slow response)
+        long startTime = System.currentTimeMillis();
+        Category firstCallResult = productService.getCategoryById(10);
+        long firstCallDuration = System.currentTimeMillis() - startTime;
+
+        log.info("Category 1st call duration (Cache Miss): {} ms", firstCallDuration);
+        assertNotNull(firstCallResult);
+        assertEquals("Books", firstCallResult.getName());
+        assertTrue(firstCallDuration >= 100);
+
+        // 2nd call: Cache hit. Bypasses repository.
+        startTime = System.currentTimeMillis();
+        Category secondCallResult = productService.getCategoryById(10);
+        long secondCallDuration = System.currentTimeMillis() - startTime;
+
+        log.info("Category 2nd call duration (Cache Hit): {} ms", secondCallDuration);
+        assertNotNull(secondCallResult);
+        assertEquals("Books", secondCallResult.getName());
+        assertTrue(secondCallDuration < firstCallDuration / 2);
+
+        // Verify categoryRepository.findById was only called once
+        verify(categoryRepository, times(1)).findById(10);
     }
 }

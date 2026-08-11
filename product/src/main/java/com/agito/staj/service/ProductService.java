@@ -42,6 +42,11 @@ public class ProductService {
     private final StreamBridge streamBridge;
 
 
+    @Cacheable(value = "categories", key = "#categoryId")
+    public Category getCategoryById(Integer categoryId) {
+        Optional<Category> category = categoryRepository.findById(categoryId);
+        return category.orElse(null);
+    }
     /**
      *
      * @param productDto
@@ -51,7 +56,7 @@ public class ProductService {
     public ProductDto createProduct(ProductDto productDto) {
 
         Category category = ProductValidator.validateCategoryExists(
-                categoryRepository.findById(productDto.getCategoryId()),
+                Optional.ofNullable(getCategoryById(productDto.getCategoryId())),
                 productDto.getCategoryId()
         );
 
@@ -111,8 +116,9 @@ public class ProductService {
                 productDto.getCode()
         );
 
+        Category category = getCategoryById(productDto.getCategoryId());
         ProductValidator.validateCategoryLeafForEdit(
-                categoryRepository.findById(productDto.getCategoryId()),
+                Optional.ofNullable(category),
                 productDto.getCategoryId()
         );
 
@@ -120,7 +126,7 @@ public class ProductService {
         Product product = productRepository.findByCode(productDto.getCode()).get();
         product.setName(productDto.getName());
         product.setCode(productDto.getCode());
-        product.setCategory(categoryRepository.findById(productDto.getCategoryId()).get());
+        product.setCategory(category);
         product.setPrice(productDto.getPrice());
         product.setCommCompleted(false);
         productRepository.save(product);
