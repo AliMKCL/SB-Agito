@@ -64,6 +64,12 @@ public class AdminStockController implements IAdminStockController  {
     }
 
     @Override
+    public ResponseEntity editThreshold(String code, int threshold) {
+        stockService.editThreshold(code, threshold);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @Override
     public ResponseEntity runStockScheduler() throws MessagingException, IOException {
         stockService.manualRunStockScheduler();
         return ResponseEntity.status(HttpStatus.OK).body(null);

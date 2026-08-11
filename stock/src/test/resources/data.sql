@@ -1,7 +1,7 @@
 -- Insert Stocks
-INSERT INTO `stock` (`code`, `quantity`, `unit_sale_price`) VALUES ('0001', 5, 20.00);
-INSERT INTO `stock` (`code`, `quantity`, `unit_sale_price`) VALUES ('0002', 2, 5.00);
-INSERT INTO `stock` (`code`, `quantity`, `unit_sale_price`) VALUES ('0003', 3, 10.00);
+INSERT INTO `stock` (`code`, `quantity`, `unit_sale_price`, `threshold`) VALUES ('0001', 5, 20.00, 6);
+INSERT INTO `stock` (`code`, `quantity`, `unit_sale_price`, `threshold`) VALUES ('0002', 2, 5.00, 1);
+INSERT INTO `stock` (`code`, `quantity`, `unit_sale_price`, `threshold`) VALUES ('0003', 3, 10.00, 4);
 
 -- Insert Stock Entries (Bulk imports at different times / different unit prices)
 -- Product 1 (Added total = 20, cost total = 160. Weighted average purchase = 8.00)

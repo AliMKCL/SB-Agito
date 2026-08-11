@@ -69,6 +69,7 @@ public class StockService {
         newStock.setCode(code);
         newStock.setQuantity(quantity);
         newStock.setUnitSalePrice(unitPrice);
+        newStock.setThreshold(0);
         stockRepository.save(newStock);
         sendCommunication(newStock);
     }
@@ -186,6 +187,16 @@ public class StockService {
         item.setUnitSalePrice(unitPrice);
         stockRepository.save(item);
         sendEditCommunication(item);
+    }
+
+    @Transactional
+    public void editThreshold(String code, int threshold) {
+        if (threshold < 0) {
+            throw new IllegalArgumentException("Threshold cannot be negative");
+        }
+        Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
+        item.setThreshold(threshold);
+        stockRepository.save(item);
     }
 
     private void sendEditCommunication(Stock stock) {

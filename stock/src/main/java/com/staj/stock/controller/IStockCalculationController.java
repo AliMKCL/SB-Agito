@@ -37,7 +37,7 @@ public interface IStockCalculationController {
 
     @Operation(
             summary = "Get items low on stock.",
-            description = "Retrieves a list of stock items whose quantity is below a specified threshold."
+            description = "Retrieves a list of stock items whose quantity is below their own configured thresholds."
     )
     @ApiResponses({
             @ApiResponse(
@@ -46,14 +46,7 @@ public interface IStockCalculationController {
             )
     })
     @GetMapping("/lowStockItems")
-    ResponseEntity<List<Stock>> getLowStockItems(
-            @Parameter(
-                    name = "threshold",
-                    description = "The inventory threshold limit below which an item is considered low on stock",
-                    required = true,
-                    in = ParameterIn.QUERY,
-                    example = "10"
-            ) @RequestParam(name = "threshold", defaultValue = "10") int threshold);
+    ResponseEntity<List<Stock>> getLowStockItems();
 
     @Operation(
             summary = "Get expected profit report.",

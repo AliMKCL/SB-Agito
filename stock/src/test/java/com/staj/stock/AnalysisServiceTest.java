@@ -57,15 +57,11 @@ public class AnalysisServiceTest {
     void testLowStockItems() {
         log.info("Starting test: testLowStockItems");
         
-        // Threshold of 4: Stock 0002 (quantity 2) and 0003 (quantity 3) should be returned
-        List<Stock> lowStockItems4 = analysisService.getLowStockItems(4);
-        assertEquals(2, lowStockItems4.size(), "Should find 2 items below threshold 4");
-        assertTrue(lowStockItems4.stream().anyMatch(s -> s.getCode().equals("0002")));
-        assertTrue(lowStockItems4.stream().anyMatch(s -> s.getCode().equals("0003")));
-
-        // Threshold of 6: All items (quantities 5, 2, 3) should be returned
-        List<Stock> lowStockItems6 = analysisService.getLowStockItems(6);
-        assertEquals(3, lowStockItems6.size(), "Should find 3 items below threshold 6");
+        List<Stock> lowStockItems = analysisService.getLowStockItems();
+        assertEquals(2, lowStockItems.size(), "Should find 2 items below their thresholds");
+        assertTrue(lowStockItems.stream().anyMatch(s -> s.getCode().equals("0001")), "Product 0001 should be low stock (5 < 6)");
+        assertTrue(lowStockItems.stream().anyMatch(s -> s.getCode().equals("0003")), "Product 0003 should be low stock (3 < 4)");
+        
         log.info("Low stock validation checked successfully.");
     }
 

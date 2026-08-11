@@ -39,8 +39,7 @@ public class StockCheckScheduler {
     @Scheduled(cron = "0 0 1 * * *", zone = "Europe/Istanbul")
     public void checkStockBelowThreshold() throws MessagingException, IOException {
 
-        // Threshold defined by 10, form here for now. (Her ürünün kendi stock leveli, thresholdu olmalı, fix 10 değil)
-        List<Stock> lowStockItems = analysisService.getLowStockItems(10);
+        List<Stock> lowStockItems = analysisService.getLowStockItems();
         mailService.sendEmail(
                 mailAddr,
                 "Low stock items",

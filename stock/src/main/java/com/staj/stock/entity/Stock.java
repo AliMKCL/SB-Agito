@@ -16,4 +16,6 @@ public class Stock {
 
     @Column(name = "unit_sale_price")
     private double unitSalePrice;
+
+    private int threshold;
 }

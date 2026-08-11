@@ -274,6 +274,45 @@ public interface IAdminStockController {
             )@RequestParam double unitPrice);
 
 
+    /**
+     *
+     * @param code
+     * @param threshold
+     */
+    @Operation(
+            summary = "Edit threshold endpoint.",
+            description = "Endpoint used to edit the threshold of a stock item."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Threshold edited"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Item not found",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    ))
+    })
+    @PutMapping("/editThreshold")
+    ResponseEntity editThreshold(
+            @Parameter(
+                    name = "code",
+                    description = "The unique code of the product",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "0001"
+            )@RequestParam String code,
+            @Parameter(
+                    name = "threshold",
+                    description = "The stock threshold limit of the product",
+                    required = true,
+                    in = ParameterIn.QUERY,
+                    example = "10"
+            )@RequestParam int threshold);
+
+
     @Operation(
             summary = "Manually run stock scheduler endpoint.",
             description = "Endpoint to run the stock scheduler manually."

@@ -62,11 +62,11 @@ public class AnalysisService {
     }
 
     /**
-     * Retrieves items that are low on stock (below a threshold).
+     * Retrieves items that are low on stock (quantity is below the item's own threshold).
      */
-    public List<Stock> getLowStockItems(int threshold) {
+    public List<Stock> getLowStockItems() {
         return stockRepository.findAll().stream()
-                .filter(stock -> stock.getQuantity() < threshold)
+                .filter(stock -> stock.getQuantity() < stock.getThreshold())
                 .collect(Collectors.toList());
     }
 

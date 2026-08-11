@@ -24,8 +24,8 @@ public class StockCalculationController implements IStockCalculationController {
     }
 
     @Override
-    public ResponseEntity<List<Stock>> getLowStockItems(int threshold) {
-        return ResponseEntity.status(HttpStatus.OK).body(analysisService.getLowStockItems(threshold));
+    public ResponseEntity<List<Stock>> getLowStockItems() {
+        return ResponseEntity.status(HttpStatus.OK).body(analysisService.getLowStockItems());
     }
 
     @Override

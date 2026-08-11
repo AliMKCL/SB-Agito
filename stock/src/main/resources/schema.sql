@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS `stock` (
     `code` varchar(100) PRIMARY KEY,
     `quantity` int NOT NULL DEFAULT 0,
-    `unit_sale_price` decimal(10, 2) NOT NULL
+    `unit_sale_price` decimal(10, 2) NOT NULL,
+    `threshold` int NOT NULL DEFAULT 0
 );
 
 
