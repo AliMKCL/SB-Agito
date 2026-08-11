@@ -15,6 +15,7 @@ import com.staj.stock.repository.StockRepository;
 import com.staj.stock.repository.StockSaleRepository;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.Local;
@@ -24,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
@@ -212,10 +215,8 @@ public class StockService {
      * Updates corresponding stock quantities.
      */
     @Transactional
-    public void importStockFromExcel(MultipartFile file) {
-        try (InputStream is = file.getInputStream();
-             Workbook workbook = WorkbookFactory.create(is)) {
-
+    public void importStockFromExcel(MultipartFile file) throws IOException {
+        try (Workbook workbook = validateExcelMetadata(file)) {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
 
@@ -223,18 +224,18 @@ public class StockService {
             if (rows.hasNext()) {
                 rows.next();
             }
-            // Column name ile yapılabilir
             while (rows.hasNext()) {
                 Row currentRow = rows.next();
+
+                // Skip empty rows
+                if (isRowEmpty(currentRow)) {
+                    continue;
+                }
 
                 Cell cellCode = currentRow.getCell(0);
                 Cell cellQuantity = currentRow.getCell(1);
                 Cell cellPrice = currentRow.getCell(2);
                 Cell cellVendor = currentRow.getCell(3);
-
-                if (cellCode == null || cellCode.getCellType() == CellType.BLANK) {
-                    continue; // Skip empty rows
-                }
 
                 String code = getCellValueAsString(cellCode);
                 int quantity = (int) getCellValueAsDouble(cellQuantity, "quantity", currentRow.getRowNum());
@@ -251,6 +252,87 @@ public class StockService {
             }
             throw new RuntimeException("Failed to parse Excel file: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     *
+     * @param file
+     * @throws IOException
+     * Validates the metadata and column structure of input excel files.
+     * Returns the opened Workbook.
+     */
+    private Workbook validateExcelMetadata(MultipartFile file) throws IOException {
+
+        // Workbook = Object for Excel files.
+
+        // File empty check
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty.");
+        }
+
+        // Check file extension (.xlsx or not).
+        String originalName = file.getOriginalFilename();
+        if (originalName == null || !originalName.endsWith(".xlsx")) {
+            throw new IllegalArgumentException("Invalid file format. Only .xlsx allowed.");
+        }
+
+        // Check file size
+        int maxSizeKB = 10;
+        long bytes = file.getSize();
+        double kilobytes = (double) bytes / 1024;
+        if (kilobytes > maxSizeKB){
+            throw new FileSizeLimitExceededException("File size is too big.", (long) kilobytes, maxSizeKB);
+        }
+
+        // Check if table contains the correct columns.
+        Workbook workbook = WorkbookFactory.create(file.getInputStream());
+        try {
+            Sheet sheet = workbook.getSheetAt(0);
+            Row headerRow = sheet.getRow(0);
+            if (headerRow == null) {
+                throw new IllegalArgumentException("Excel file has no header row.");
+            }
+
+            String col0 = getCellValueAsString(headerRow.getCell(0));
+            String col1 = getCellValueAsString(headerRow.getCell(1));
+            String col2 = getCellValueAsString(headerRow.getCell(2));
+            String col3 = getCellValueAsString(headerRow.getCell(3));
+
+            if (!"Code".equalsIgnoreCase(col0) && !"code".equalsIgnoreCase(col0)) {
+                throw new IllegalArgumentException("Invalid column header at index 0. Expected: Code.");
+            }
+            if (!"Quantity".equalsIgnoreCase(col1) && !"quantity".equalsIgnoreCase(col1)) {
+                throw new IllegalArgumentException("Invalid column header at index 1. Expected: Quantity.");
+            }
+            if (!"Total Price Paid".equalsIgnoreCase(col2) && !"totalPricePaid".equalsIgnoreCase(col2)) {
+                throw new IllegalArgumentException("Invalid column header at index 2. Expected: Total Price Paid.");
+            }
+            if (!"Vendor".equalsIgnoreCase(col3) && !"vendor".equalsIgnoreCase(col3)) {
+                throw new IllegalArgumentException("Invalid column header at index 3. Expected: Vendor.");
+            }
+
+            return workbook;
+        } catch (Exception e) {
+            try {
+                workbook.close();
+            } catch (IOException ex) {
+                throw new IOException("Error with closing the Workbook object.");
+            }
+            throw e;
+        }
+    }
+
+    private boolean isRowEmpty(Row row) {
+        if (row == null) {
+            return true;
+        }
+        for (int i = 0; i < 4; i++) {
+            Cell cell = row.getCell(i);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private String getCellValueAsString(Cell cell) {
@@ -313,6 +395,8 @@ public class StockService {
     public void manualRunStockScheduler() throws MessagingException, IOException {
         stockCheckScheduler.checkStockBelowThreshold();
     }
+
+
 }
 
 

@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @Tag(
         name = "Stock Excel Controller",
         description = "Controller to import stock entries from Excel files"
@@ -49,5 +51,5 @@ public interface IStockExcelController {
             @Parameter(
                     description = "The Excel file containing StockEntry records. Headers should be: code, quantity, totalPricePaid, vendor.",
                     required = true
-            ) @RequestParam("file") MultipartFile file);
+            ) @RequestParam("file") MultipartFile file) throws IOException;
 }
