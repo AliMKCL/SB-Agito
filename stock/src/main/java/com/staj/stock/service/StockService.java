@@ -276,6 +276,8 @@ public class StockService {
             throw new IllegalArgumentException("Invalid file format. Only .xlsx allowed.");
         }
 
+        // Spring aspect, filter / interceptor
+
         // Check file size
         int maxSizeKB = 10;
         long bytes = file.getSize();

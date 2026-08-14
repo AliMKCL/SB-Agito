@@ -60,7 +60,6 @@ public class ProductService {
                 productDto.getCategoryId()
         );
 
-        // Category veritabanından çekmek yerine redis cacheden alsın
 
         ProductValidator.validateCategoryIsLeaf(category);
 
