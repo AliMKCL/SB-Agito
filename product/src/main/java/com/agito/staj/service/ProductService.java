@@ -179,4 +179,59 @@ public class ProductService {
         product.setCommCompleted(true);
         productRepository.save(product);
     }
+
+    public List<ProductDto> seedDatabase() {
+        List<ProductDto> productsToSeed = List.of(
+            // Laptops (Category ID: 3)
+            createProductDto("L001", "MacBook Pro 14", 3, 1999.00),
+            createProductDto("L002", "MacBook Air 13", 3, 1099.00),
+            createProductDto("L003", "Dell XPS 13", 3, 1299.00),
+            createProductDto("L004", "ThinkPad X1 Carbon", 3, 1599.00),
+            createProductDto("L005", "HP Spectre x360", 3, 1399.00),
+            createProductDto("L006", "Asus ROG Zephyrus", 3, 1799.00),
+            createProductDto("L007", "Razer Blade 15", 3, 2399.00),
+            createProductDto("L008", "Acer Swift 3", 3, 699.00),
+            createProductDto("L009", "Lenovo Yoga 9i", 3, 1499.00),
+            createProductDto("L010", "LG Gram 17", 3, 1599.00),
+            createProductDto("L011", "Dell Inspiron 15", 3, 649.00),
+            createProductDto("L012", "HP Pavilion 14", 3, 599.00),
+            createProductDto("L013", "Microsoft Surface 5", 3, 999.00),
+            createProductDto("L014", "Acer Predator", 3, 1499.00),
+            createProductDto("L015", "MSI Stealth 15", 3, 1899.00),
+
+            // Desktops (Category ID: 4)
+            createProductDto("D001", "iMac 24", 4, 1299.00),
+            createProductDto("D002", "Mac Studio", 4, 1999.00),
+            createProductDto("D003", "Dell Inspiron 3910", 4, 599.00),
+            createProductDto("D004", "HP Pavilion TP01", 4, 649.00),
+            createProductDto("D005", "Lenovo Legion T5", 4, 1199.00),
+            createProductDto("D006", "Alienware Aurora", 4, 2199.00),
+            createProductDto("D007", "Asus ROG Strix G15", 4, 1399.00),
+            createProductDto("D008", "Acer Aspire TC", 4, 499.00),
+            createProductDto("D009", "Mac Pro", 4, 5999.00),
+            createProductDto("D010", "CyberPowerPC Gamer", 4, 999.00),
+            createProductDto("D011", "HP Omen 40L", 4, 1499.00),
+            createProductDto("D012", "Dell OptiPlex 7000", 4, 899.00),
+            createProductDto("D013", "Skytech Archangel", 4, 1099.00),
+            createProductDto("D014", "Lenovo IdeaCentre 5", 4, 549.00),
+            createProductDto("D015", "Corsair One i300", 4, 3599.00)
+        );
+
+        List<ProductDto> seededProducts = new java.util.ArrayList<>();
+        for (ProductDto dto : productsToSeed) {
+            if (productRepository.findByCode(dto.getCode()).isEmpty()) {
+                seededProducts.add(createProduct(dto));
+            }
+        }
+        return seededProducts;
+    }
+
+    private ProductDto createProductDto(String code, String name, Integer categoryId, Double price) {
+        ProductDto dto = new ProductDto();
+        dto.setCode(code);
+        dto.setName(name);
+        dto.setCategoryId(categoryId);
+        dto.setPrice(price);
+        return dto;
+    }
 }

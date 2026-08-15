@@ -67,4 +67,10 @@ public class AdminProductController implements IAdminProductController {
         productService.deleteProduct(code);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+
+    @Override
+    public ResponseEntity<List<ProductDto>> seedDatabase() {
+        List<ProductDto> seeded = productService.seedDatabase();
+        return ResponseEntity.status(HttpStatus.CREATED).body(seeded);
+    }
 }

@@ -156,4 +156,17 @@ public interface IAdminProductController {
                 @Size(min = 4, max = 4, message = "Code length must be exactly 4")
                 String code
     );
+
+    @Operation(
+            summary = "Seed product database endpoint.",
+            description = "Endpoint used to seed the product database with 30 unique products."
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Product database seeded successfully"
+            )
+    })
+    @PostMapping("/seedDb")
+    ResponseEntity<List<ProductDto>> seedDatabase();
 }

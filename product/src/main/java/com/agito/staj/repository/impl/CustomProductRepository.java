@@ -36,10 +36,11 @@ public class CustomProductRepository implements ICustomProductRepository {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Product> criteriaQuery = criteriaBuilder.createQuery(Product.class);
 
-        List<Predicate> predicates = new ArrayList<>();
-
         // SELECT FROM product
         Root<Product> root = criteriaQuery.from(Product.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
         if (searchProductDto.getCode() != null){
             Predicate codePredicate = criteriaBuilder.like(root.get("code"), "%" + searchProductDto.getCode() + "%");
             predicates.add(codePredicate);
@@ -60,15 +61,19 @@ public class CustomProductRepository implements ICustomProductRepository {
             }
         }
 
-        if (predicates.isEmpty()){
-            return productRepository.findAll();
+        if (!predicates.isEmpty()) {
+            criteriaQuery.where(
+                    criteriaBuilder.and(predicates.toArray(new Predicate[0]))
+            );
         }
 
-        criteriaQuery.where(
-                criteriaBuilder.or(predicates.toArray(new Predicate[0]))
-        );
+        criteriaQuery.orderBy(criteriaBuilder.asc(root.get("code")));
 
         TypedQuery<Product> query = entityManager.createQuery(criteriaQuery);
+
+        // Pagination to limit return size. (Add via a Pageable object to un-hardcode.
+        // query.setFirstResult(0); // offset
+        // query.setMaxResults(20); // limit per fetch
         return query.getResultList();
     }
 
