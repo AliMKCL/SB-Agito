@@ -1,5 +1,23 @@
 services:
 
+  clamav:
+    image: clamav/clamav:latest
+    platform: linux/amd64
+    container_name: clamav
+    ports:
+      - "3310:3310"
+    restart: unless-stopped
+    networks:
+      - staj-network
+    healthcheck:
+      # clamdcheck.sh ships with the clamav image and exits 0 only when
+      # the daemon is fully initialised and listening on port 3310.
+      test: ["CMD", "/usr/local/bin/clamdcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 120s  # ClamAV downloads virus DBs on first boot — allow up to 2 min
+
   redis:
     image: redis:latest
     container_name: redis
@@ -121,7 +139,9 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
-      KEYCLOAK_CLIENT_SECRET: "DgPqEDvQEI9SsbGeXDBWZamqqTU8tSp1"
+      KEYCLOAK_CLIENT_SECRET: "w6NKa48c9fFPamFm1H6apxsqRAtlG6ez"
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
     networks:
       - staj-network
     depends_on:
@@ -131,6 +151,10 @@ services:
         condition: service_healthy
       stock-service:
         condition: service_healthy
+      clamav:
+        condition: service_healthy
+
+
 
   eurekaserver:
     image: eurekaserver:latest

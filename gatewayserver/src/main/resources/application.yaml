@@ -9,6 +9,12 @@ spring:
     - "optional:configserver:"      # Needed to stop an error.
     - "optional:file:.env[.properties]"
 
+  # Allow the codec to buffer up to 20 MB in memory.
+  # Without this Spring WebFlux rejects multipart/form-data requests
+  # at the codec level (before the controller runs) with HTTP 415.
+  codec:
+    max-in-memory-size: 20MB
+
 
   cloud:
     gateway:
@@ -43,7 +49,7 @@ spring:
 
       resourceserver:
         jwt:
-          jwk-set-uri: "http://localhost:8000/realms/master/protocol/openid-connect/certs"
+          jwk-set-uri: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
 
 
 management:
@@ -62,3 +68,20 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8070/eureka/
+
+clamav:
+  host: ${CLAMAV_HOST:localhost}
+  port: ${CLAMAV_PORT:3310}
+
+logging:
+  level:
+    # Logs every step of the file upload and inspection pipeline
+    com.staj.gatewayserver.controller: DEBUG
+    com.staj.gatewayserver.service: DEBUG
+    # Logs Spring Security decisions: who is authenticated, why 401/403 is returned,
+    # which filter rejected the request, and JWT validation failure reasons
+    org.springframework.security: DEBUG
+    # Logs Spring's codec / multipart decisions (useful for diagnosing 415 errors)
+    org.springframework.http.codec.multipart: DEBUG
+    # Logs WebClient requests sent internally by Spring Cloud Gateway routing
+    org.springframework.web.reactive.function.client: DEBUG

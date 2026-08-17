@@ -4,9 +4,10 @@
 - 8090: stock
 - 9000: gatewayserver
 - 8000: keycloak
-- 8443: nginx
+- 8443: nginx (Reverse proxy to bypass Keycloak https requirement)
 - 9092: kafka
 - 8888: temporary google auth server
+- 3310: ClamAv (File virus scanning)
 
 Enter keycloak via https://localhost:8443
 
