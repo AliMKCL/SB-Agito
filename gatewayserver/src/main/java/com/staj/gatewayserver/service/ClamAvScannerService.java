@@ -21,12 +21,6 @@ import java.nio.charset.StandardCharsets;
  *   <li>Send a zero-length chunk (4 zero bytes) to signal end-of-stream</li>
  *   <li>Read a single response line: {@code "stream: OK"} = clean, anything else = flagged</li>
  * </ol>
- *
- * <h2>Error handling policy</h2>
- * A <strong>connectivity failure</strong> (ClamAV unreachable, socket timeout, DNS error)
- * is fundamentally different from a positive virus detection. When the scanner cannot
- * be reached, a {@link ClamAvUnavailableException} is thrown so the caller can return
- * an appropriate HTTP 503 rather than silently treating the file as infected.
  */
 @Service
 public class ClamAvScannerService {
@@ -53,6 +47,7 @@ public class ClamAvScannerService {
     public boolean isClean(byte[] data) {
         log.debug("[CLAMAV] Connecting to {}:{} to scan {} bytes", clamAvHost, clamAvPort, data.length);
 
+        // Talk to ClamAv via TCP and a socket connection, via in and out streams.
         try (Socket socket = new Socket(clamAvHost, clamAvPort);
              OutputStream out = new BufferedOutputStream(socket.getOutputStream());
              InputStream in = new BufferedInputStream(socket.getInputStream())) {

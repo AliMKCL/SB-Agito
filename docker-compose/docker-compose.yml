@@ -183,6 +183,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      kafka:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://productDB:3306/productDB
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
@@ -204,11 +206,12 @@ services:
     ports:
       - "8090:8090"
       - "8888:8888" # For the temporary Google auth server for gmail.
-
     depends_on:
       stockDB:
         condition: service_healthy
       eurekaserver:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://stockDB:3306/stockDB

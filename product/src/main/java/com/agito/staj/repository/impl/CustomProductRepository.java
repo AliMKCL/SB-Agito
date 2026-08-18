@@ -2,10 +2,13 @@ package com.agito.staj.repository.impl;
 
 import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.entity.Category;
+import com.agito.staj.entity.FilterCriteria;
 import com.agito.staj.entity.Product;
+import com.agito.staj.entity.SearchOperation;
 import com.agito.staj.repository.CategoryRepository;
 import com.agito.staj.repository.ICustomProductRepository;
 import com.agito.staj.repository.IProductRepository;
+import com.agito.staj.util.GenericQueryUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.agito.staj.util.GenericQueryUtil.buildPredicates;
 
 @RequiredArgsConstructor
 @Repository
@@ -39,15 +44,13 @@ public class CustomProductRepository implements ICustomProductRepository {
         // SELECT FROM product
         Root<Product> root = criteriaQuery.from(Product.class);
 
-        List<Predicate> predicates = new ArrayList<>();
+        List<FilterCriteria> filters = new ArrayList<>();
 
         if (searchProductDto.getCode() != null){
-            Predicate codePredicate = criteriaBuilder.like(root.get("code"), "%" + searchProductDto.getCode() + "%");
-            predicates.add(codePredicate);
+            filters.add(new FilterCriteria("code", SearchOperation.LIKE, searchProductDto.getCode()));
         }
         if (searchProductDto.getName() != null){
-            Predicate namePredicate = criteriaBuilder.like(root.get("name"), "%" + searchProductDto.getName() + "%");
-            predicates.add(namePredicate);
+            filters.add(new FilterCriteria("name", SearchOperation.LIKE, searchProductDto.getName()));
         }
 
         // Gets the children of the input categoryId as well (Ex: Input 2 gives items with categoryId 3 and 4).
@@ -56,25 +59,21 @@ public class CustomProductRepository implements ICustomProductRepository {
             if (category != null) {
                 List<Integer> categoryIds = new ArrayList<>();
                 collectCategoryIds(category, categoryIds);
-                Predicate categoryPredicate = root.get("category").get("id").in(categoryIds);
-                predicates.add(categoryPredicate);
+                filters.add(new FilterCriteria("category.id", SearchOperation.IN, categoryIds));
             }
         }
 
-        if (!predicates.isEmpty()) {
-            criteriaQuery.where(
-                    criteriaBuilder.and(predicates.toArray(new Predicate[0]))
-            );
-        }
+        Predicate[] predicates = buildPredicates(criteriaBuilder, root, filters);
+        criteriaQuery.where(predicates);
 
         criteriaQuery.orderBy(criteriaBuilder.asc(root.get("code")));
+        List<Product> results = entityManager.createQuery(criteriaQuery).getResultList();
 
-        TypedQuery<Product> query = entityManager.createQuery(criteriaQuery);
 
         // Pagination to limit return size. (Add via a Pageable object to un-hardcode.
         // query.setFirstResult(0); // offset
         // query.setMaxResults(20); // limit per fetch
-        return query.getResultList();
+        return results;
     }
 
     private void collectCategoryIds(Category category, List<Integer> ids) {
