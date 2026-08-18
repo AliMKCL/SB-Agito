@@ -3,6 +3,9 @@ package com.agito.staj.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * The fields that will be used while building the query inside (GenericQueryUtil) Dynamic Query Generation.
+ */
 @Getter
 @AllArgsConstructor
 public class FilterCriteria {

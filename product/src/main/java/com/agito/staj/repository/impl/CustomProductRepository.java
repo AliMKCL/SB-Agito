@@ -63,6 +63,8 @@ public class CustomProductRepository implements ICustomProductRepository {
             }
         }
 
+        // Add for price filtering (with operation GT or LT)
+
         Predicate[] predicates = buildPredicates(criteriaBuilder, root, filters);
         criteriaQuery.where(predicates);
 
@@ -76,6 +78,11 @@ public class CustomProductRepository implements ICustomProductRepository {
         return results;
     }
 
+    /**
+     * Used to find all items belonging to a child category of a category used during filtering.
+     * @param category
+     * @param ids
+     */
     private void collectCategoryIds(Category category, List<Integer> ids) {
         ids.add(category.getId());
         for (Category child : category.getChildren()) {

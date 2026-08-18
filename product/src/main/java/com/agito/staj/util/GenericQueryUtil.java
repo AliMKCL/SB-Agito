@@ -6,8 +6,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+
 public class GenericQueryUtil {
 
+    /**
+     * Builds the query/predicates based on the filters provided.
+     * @param cb
+     * @param root
+     * @param filters
+     * @return
+     * @param <T>
+     */
     public static <T> Predicate[] buildPredicates(
             CriteriaBuilder cb,
             Root<T> root,
@@ -17,10 +26,12 @@ public class GenericQueryUtil {
 
         for (FilterCriteria filter : filters) {
             if (filter.getValue() == null) {
-                continue;
+                continue; // Should never happen
             }
 
             Path<Object> path = getPath(root, filter.getFieldName());
+
+            // Currently fieldCriteria only uses LIKE, add support for Comparison (for price).
 
             switch (filter.getOperation()) {
                 case LIKE -> {
