@@ -37,8 +37,6 @@ public class ProductService {
 
     private final CategoryRepository categoryRepository;
 
-    private final StockFeignClient stockFeignClient;
-
     private static final Logger log = LoggerFactory.getLogger(ProductService.class);
 
     private final StreamBridge streamBridge;
@@ -222,7 +220,7 @@ public class ProductService {
         List<ProductDto> seededProducts = new java.util.ArrayList<>();
         for (ProductDto dto : productsToSeed) {
             if (productRepository.findByCode(dto.getCode()).isEmpty()) {
-                seededProducts.add(createProduct(dto));
+                seededProducts.add(createProduct(dto)); // createProduct adds the product to db, and returns the dto.
             }
         }
         return seededProducts;

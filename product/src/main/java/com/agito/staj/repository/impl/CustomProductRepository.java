@@ -5,6 +5,7 @@ import com.agito.staj.entity.Category;
 import com.agito.staj.entity.FilterCriteria;
 import com.agito.staj.entity.Product;
 import com.agito.staj.entity.SearchOperation;
+import com.agito.staj.exception.IncompatibleTypesException;
 import com.agito.staj.repository.CategoryRepository;
 import com.agito.staj.repository.ICustomProductRepository;
 import com.agito.staj.repository.IProductRepository;
@@ -46,24 +47,43 @@ public class CustomProductRepository implements ICustomProductRepository {
 
         List<FilterCriteria> filters = new ArrayList<>();
 
-        if (searchProductDto.getCode() != null){
-            filters.add(new FilterCriteria("code", SearchOperation.LIKE, searchProductDto.getCode()));
-        }
-        if (searchProductDto.getName() != null){
-            filters.add(new FilterCriteria("name", SearchOperation.LIKE, searchProductDto.getName()));
-        }
+
+        filters.add(new FilterCriteria("code", SearchOperation.LIKE, searchProductDto.getCode()));
+
+        filters.add(new FilterCriteria("name", SearchOperation.LIKE, searchProductDto.getName()));
 
         // Gets the children of the input categoryId as well (Ex: Input 2 gives items with categoryId 3 and 4).
-        if (searchProductDto.getCategoryId() != null){
-            Category category = categoryRepository.findById(searchProductDto.getCategoryId()).orElse(null);
-            if (category != null) {
-                List<Integer> categoryIds = new ArrayList<>();
-                collectCategoryIds(category, categoryIds);
-                filters.add(new FilterCriteria("category.id", SearchOperation.IN, categoryIds));
-            }
+        Category category = searchProductDto.getCategoryId() != null
+                ? categoryRepository.findById(searchProductDto.getCategoryId()).orElse(null)
+                : null;
+        if (category != null) {
+            List<Integer> categoryIds = new ArrayList<>();
+            collectCategoryIds(category, categoryIds);
+            filters.add(new FilterCriteria("category.id", SearchOperation.IN, categoryIds));
         }
 
-        // Add for price filtering (with operation GT or LT)
+
+        // Parses the price filter string (Ex: ">100.0" or "<500") into a GREATER_THAN or LESS_THAN predicate.
+        if (searchProductDto.getPrice() != null) {
+            String priceFilter = searchProductDto.getPrice();
+            char operator = priceFilter.charAt(0);
+            String numericPart = priceFilter.substring(1);
+
+            double parsedPrice;
+            try {
+                parsedPrice = Double.parseDouble(numericPart);
+            } catch (NumberFormatException e) {
+                throw new IncompatibleTypesException(
+                        "Incompatible types: price filter value '" + numericPart + "' cannot be converted to a number."
+                );
+            }
+
+            SearchOperation operation = (operator == '>') ? SearchOperation.GREATER_THAN
+                    : SearchOperation.LESS_THAN;
+
+            filters.add(new FilterCriteria("price", operation, parsedPrice));
+        }
+
 
         Predicate[] predicates = buildPredicates(criteriaBuilder, root, filters);
         criteriaQuery.where(predicates);

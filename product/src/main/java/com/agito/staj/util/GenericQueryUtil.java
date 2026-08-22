@@ -26,12 +26,10 @@ public class GenericQueryUtil {
 
         for (FilterCriteria filter : filters) {
             if (filter.getValue() == null) {
-                continue; // Should never happen
+                continue; // Means filter does not exist.
             }
 
             Path<Object> path = getPath(root, filter.getFieldName());
-
-            // Currently fieldCriteria only uses LIKE, add support for Comparison (for price).
 
             switch (filter.getOperation()) {
                 case LIKE -> {
@@ -46,12 +44,16 @@ public class GenericQueryUtil {
                 }
                 case GREATER_THAN -> {
                     if (filter.getValue() instanceof Comparable comp) {
-                        predicates.add(cb.greaterThan(path.as(Comparable.class), comp));
+                        @SuppressWarnings("unchecked")
+                        Class<Comparable> type = (Class<Comparable>) comp.getClass();
+                        predicates.add(cb.greaterThan(path.as(type), comp));
                     }
                 }
                 case LESS_THAN -> {
                     if (filter.getValue() instanceof Comparable comp) {
-                        predicates.add(cb.lessThan(path.as(Comparable.class), comp));
+                        @SuppressWarnings("unchecked")
+                        Class<Comparable> type = (Class<Comparable>) comp.getClass();
+                        predicates.add(cb.lessThan(path.as(type), comp));
                     }
                 }
             }
