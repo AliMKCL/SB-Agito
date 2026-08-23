@@ -139,9 +139,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
-      KEYCLOAK_CLIENT_SECRET: "w6NKa48c9fFPamFm1H6apxsqRAtlG6ez"
-      CLAMAV_HOST: clamav
-      CLAMAV_PORT: 3310
+      KEYCLOAK_CLIENT_SECRET: "fjk5ZPZqKPeR236gMSrfVH7BgfmrAwGm"
     networks:
       - staj-network
     depends_on:
@@ -150,8 +148,6 @@ services:
       product-service:
         condition: service_healthy
       stock-service:
-        condition: service_healthy
-      clamav:
         condition: service_healthy
 
 
@@ -213,11 +209,15 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      clamav:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://stockDB:3306/stockDB
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
       SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka:29092
       MAIL_ADDR: "murat.keceli@agito.com.tr"
+      CLAMAV_HOST: clamav
+      CLAMAV_PORT: 3310
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8090/actuator/health" ]
       interval: 5s

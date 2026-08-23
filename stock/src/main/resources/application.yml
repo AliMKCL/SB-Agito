@@ -15,6 +15,10 @@ spring:
     show-sql: true  # Displays the sql that is run behind the scenes by jdbc.
   config:
     import: "optional:file:.env[.properties]"
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
 
   cloud:
     loadbalancer:
@@ -39,6 +43,11 @@ spring:
         confirmEditProduct-out-0:
           destination: finish-product-edited
           group: ${spring.application.name}
+
+clamav:
+  host: ${CLAMAV_HOST:localhost}
+  port: ${CLAMAV_PORT:3310}
+
 
 management:
   endpoints:

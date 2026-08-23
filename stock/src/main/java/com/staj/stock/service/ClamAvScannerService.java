@@ -1,4 +1,4 @@
-package com.staj.gatewayserver.service;
+package com.staj.stock.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,14 +13,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * Scans uploaded file bytes for malware by streaming them to a ClamAV daemon
  * using the INSTREAM TCP protocol.
- *
- * <h2>ClamAV INSTREAM protocol</h2>
- * <ol>
- *   <li>Send the null-terminated command {@code zINSTREAM\0}</li>
- *   <li>Send the file in chunks, each prefixed with a 4-byte big-endian length header</li>
- *   <li>Send a zero-length chunk (4 zero bytes) to signal end-of-stream</li>
- *   <li>Read a single response line: {@code "stream: OK"} = clean, anything else = flagged</li>
- * </ol>
  */
 @Service
 public class ClamAvScannerService {
@@ -47,7 +39,6 @@ public class ClamAvScannerService {
     public boolean isClean(byte[] data) {
         log.debug("[CLAMAV] Connecting to {}:{} to scan {} bytes", clamAvHost, clamAvPort, data.length);
 
-        // Talk to ClamAv via TCP and a socket connection, via in and out streams.
         try (Socket socket = new Socket(clamAvHost, clamAvPort);
              OutputStream out = new BufferedOutputStream(socket.getOutputStream());
              InputStream in = new BufferedInputStream(socket.getInputStream())) {
@@ -81,9 +72,6 @@ public class ClamAvScannerService {
             return clean;
 
         } catch (IOException e) {
-            // Connectivity failure — ClamAV is unreachable or the connection was dropped.
-            // This is NOT a virus detection; throw a distinct exception so the caller can
-            // return HTTP 503 (scanner unavailable) rather than 422 (infected file).
             log.error("[CLAMAV] Could not reach ClamAV at {}:{} — {}", clamAvHost, clamAvPort, e.getMessage());
             throw new ClamAvUnavailableException(
                     "ClamAV scanner is unreachable at " + clamAvHost + ":" + clamAvPort, e);

@@ -1,4 +1,4 @@
-package com.staj.gatewayserver.util;
+package com.staj.stock.util;
 
 import org.apache.tika.Tika;
 import org.apache.tika.io.TikaInputStream;
@@ -14,17 +14,6 @@ import java.util.zip.ZipInputStream;
 /**
  * Validates the binary content of an uploaded file to confirm it is a genuine
  * Excel document and does not contain embedded VBA macros.
- *
- * <h2>Why {@code TikaInputStream} instead of {@code Tika.detect(byte[])}?</h2>
- * {@code .xlsx} files are ZIP archives whose magic bytes ({@code PK}, 0x50 0x4B)
- * are identical to any other ZIP file. Calling {@code Tika.detect(byte[])} on an
- * {@code .xlsx} file therefore returns {@code application/zip} instead of the
- * correct OOXML MIME type, causing every valid Excel file to be rejected.
- *
- * <p>By wrapping the bytes in a {@link TikaInputStream} together with a
- * {@link Metadata} object that carries the filename, Tika can inspect the ZIP
- * container's {@code [Content_Types].xml} entry and reliably identify
- * {@code .xlsx} / {@code .xls} files.
  */
 @Component
 public class ExcelSignatureValidator {
@@ -50,7 +39,6 @@ public class ExcelSignatureValidator {
             String detectedType = tika.detect(tikaStream, metadata);
             return MIME_XLSX.equals(detectedType) || MIME_XLS.equals(detectedType);
         } catch (IOException e) {
-            // If Tika cannot read the stream at all the file is not a valid Excel document
             return false;
         }
     }
@@ -62,12 +50,10 @@ public class ExcelSignatureValidator {
      * @param fileBytes raw bytes of the uploaded file
      */
     public boolean containsMacros(byte[] fileBytes) {
-        // Inspect internal ZIP entries of .xlsx to block embedded VBA macros
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(fileBytes))) {
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 String name = entry.getName().toLowerCase();
-                // vbaProject.bin is the canonical container for VBA code in OOXML
                 if (name.contains("vbaproject.bin") || name.endsWith(".bin")) {
                     return true;
                 }

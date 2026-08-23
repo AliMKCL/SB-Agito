@@ -37,7 +37,6 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/stock/**").authenticated()
                         .pathMatchers("/product/**").authenticated()
-                        .pathMatchers("/files/**").authenticated()
                         .anyExchange().permitAll())
 
                 // Browser flow: redirects unauthenticated browser requests to Keycloak
