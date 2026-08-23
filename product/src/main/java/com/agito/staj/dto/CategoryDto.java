@@ -25,9 +25,9 @@ public class CategoryDto implements Serializable {
     @Schema(
             description = "Name of the category", example = "drink"
     )
-    @NotEmpty(message = "Name cannot be null or empty.")
-    @NotNull
-    @Size(min = 3, max = 50, message = "Length of category name must be between 3 and 50")
+    @NotEmpty(message = "{validation.category.name.notEmpty}")
+    @NotNull(message = "{validation.category.name.notNull}")
+    @Size(min = 3, max = 50, message = "{validation.category.name.size}")
     private String name;
 
     @Schema(

@@ -22,29 +22,29 @@ public class ProductDto implements Serializable {
     @Schema(
             description = "Item code of the product", example = "001"
     )
-    @NotEmpty(message = "Code cannot be null or empty.")
-    @NotNull
-    @Size(min=4, max=4, message="Length of the product code must be exactly 4." )
+    @NotEmpty(message = "{validation.product.code.notEmpty}")
+    @NotNull(message = "{validation.product.code.notNull}")
+    @Size(min=4, max=4, message="{validation.product.code.size}" )
     private String code;
 
     @Schema(
             description = "Name of the product", example = "water"
     )
-    @NotEmpty(message = "Name cannot be null or empty.")
-    @NotNull
-    @Size(min=3, max=20, message="Length of product name must be between 5 and 20")
+    @NotEmpty(message = "{validation.product.name.notEmpty}")
+    @NotNull(message = "{validation.product.name.notNull}")
+    @Size(min=3, max=20, message="{validation.product.name.size}")
     private String name;
 
     @Schema(
             description = "Category of the product", example = "drink"
     )
-    @NotNull(message = "Category ID is required")
+    @NotNull(message = "{validation.product.categoryId.notNull}")
     private Integer categoryId;
 
     @Schema(
             description = "Price of the product", example = "5.99"
     )
-    @NotNull(message = "Price cannot be null or empty.")
-    @Min(value=0)
+    @NotNull(message = "{validation.product.price.notNull}")
+    @Min(value=0, message = "{validation.product.price.min}")
     private Double price;
 }

@@ -6,6 +6,7 @@ import com.agito.staj.entity.FilterCriteria;
 import com.agito.staj.entity.Product;
 import com.agito.staj.entity.SearchOperation;
 import com.agito.staj.exception.IncompatibleTypesException;
+import com.agito.staj.util.Translator;
 import com.agito.staj.repository.CategoryRepository;
 import com.agito.staj.repository.ICustomProductRepository;
 import com.agito.staj.repository.IProductRepository;
@@ -74,7 +75,7 @@ public class CustomProductRepository implements ICustomProductRepository {
                 parsedPrice = Double.parseDouble(numericPart);
             } catch (NumberFormatException e) {
                 throw new IncompatibleTypesException(
-                        "Incompatible types: price filter value '" + numericPart + "' cannot be converted to a number."
+                        Translator.toLocale("error.search.priceIncompatible", numericPart)
                 );
             }
 

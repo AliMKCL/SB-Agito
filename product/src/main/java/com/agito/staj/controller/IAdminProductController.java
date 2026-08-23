@@ -86,8 +86,8 @@ public interface IAdminProductController {
                     example = "0001"
             )
             @RequestParam("code")
-                @NotBlank(message = "Code cannot be blank")
-                @Size(min = 4, max = 4, message = "Code length must be exactly 4")
+                @NotBlank(message = "{validation.param.code.notBlank}")
+                @Size(min = 4, max = 4, message = "{validation.param.code.size}")
                 String code
     );
 
@@ -152,8 +152,8 @@ public interface IAdminProductController {
                     example = "0001"
             )
             @RequestParam("code")
-                @NotBlank(message = "Code cannot be blank")
-                @Size(min = 4, max = 4, message = "Code length must be exactly 4")
+                @NotBlank(message = "{validation.param.code.notBlank}")
+                @Size(min = 4, max = 4, message = "{validation.param.code.size}")
                 String code
     );
 

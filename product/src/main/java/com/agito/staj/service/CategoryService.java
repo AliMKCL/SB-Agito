@@ -5,6 +5,7 @@ import com.agito.staj.entity.Category;
 import com.agito.staj.exception.CategoryNotFoundException;
 import com.agito.staj.exception.DuplicateCategoryException;
 import com.agito.staj.exception.InvalidCategoryException;
+import com.agito.staj.util.Translator;
 import com.agito.staj.mapper.CategoryMapper;
 import com.agito.staj.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
@@ -23,13 +24,13 @@ public class CategoryService {
 
     public CategoryDto createCategory(CategoryDto categoryDto) {
         if (categoryRepository.findByName(categoryDto.getName()).isPresent()) {
-            throw new DuplicateCategoryException("Category with name " + categoryDto.getName() + " already exists.");
+            throw new DuplicateCategoryException(Translator.toLocale("error.category.duplicate", categoryDto.getName()));
         }
 
         Category parent = null;
         if (categoryDto.getParentId() != null) {
             parent = categoryRepository.findById(categoryDto.getParentId())
-                    .orElseThrow(() -> new CategoryNotFoundException("Parent category not found with ID: " + categoryDto.getParentId()));
+                    .orElseThrow(() -> new CategoryNotFoundException(Translator.toLocale("error.category.parentNotFound", categoryDto.getParentId())));
         }
 
         Category category = CategoryMapper.CategoryDtoToEntity(categoryDto, parent);
@@ -40,7 +41,7 @@ public class CategoryService {
     @Cacheable(value = "categories", key = "#id")
     public CategoryDto findCategoryById(Integer id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + id));
+                .orElseThrow(() -> new CategoryNotFoundException(Translator.toLocale("error.category.notFound", id)));
         return CategoryMapper.CategoryEntityToDto(category);
     }
 
@@ -52,21 +53,21 @@ public class CategoryService {
     @CacheEvict(value = "categories", key = "#categoryDto.getId()")
     public CategoryDto editCategory(CategoryDto categoryDto) {
         Category category = categoryRepository.findById(categoryDto.getId())
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + categoryDto.getId()));
+                .orElseThrow(() -> new CategoryNotFoundException(Translator.toLocale("error.category.notFound", categoryDto.getId())));
 
         // Check duplicate name
         Optional<Category> existingByName = categoryRepository.findByName(categoryDto.getName());
         if (existingByName.isPresent() && !existingByName.get().getId().equals(category.getId())) {
-            throw new DuplicateCategoryException("Category with name " + categoryDto.getName() + " already exists.");
+            throw new DuplicateCategoryException(Translator.toLocale("error.category.duplicate", categoryDto.getName()));
         }
 
         // Circular parent check
         if (categoryDto.getParentId() != null) {
             if (categoryDto.getParentId().equals(category.getId())) {
-                throw new InvalidCategoryException("A category cannot be its own parent.");
+                throw new InvalidCategoryException(Translator.toLocale("error.category.selfParent"));
             }
             Category parent = categoryRepository.findById(categoryDto.getParentId())
-                    .orElseThrow(() -> new CategoryNotFoundException("Parent category not found with ID: " + categoryDto.getParentId()));
+                    .orElseThrow(() -> new CategoryNotFoundException(Translator.toLocale("error.category.parentNotFound", categoryDto.getParentId())));
             category.setParent(parent);
         } else {
             category.setParent(null);
@@ -80,7 +81,7 @@ public class CategoryService {
     @CacheEvict(value = "categories", key = "#id")
     public void deleteCategory(Integer id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + id));
+                .orElseThrow(() -> new CategoryNotFoundException(Translator.toLocale("error.category.notFound", id)));
         categoryRepository.delete(category);
     }
 }

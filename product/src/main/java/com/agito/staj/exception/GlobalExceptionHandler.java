@@ -1,7 +1,7 @@
 package com.agito.staj.exception;
 
 import com.agito.staj.dto.ErrorResponseDto;
-import org.springframework.cglib.core.Local;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.*;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -120,6 +120,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(
+            ConstraintViolationException exception, WebRequest webRequest) {
+        Map<String, String> validationErrors = new HashMap<>();
+        exception.getConstraintViolations().forEach(violation -> {
+            String propertyPath = violation.getPropertyPath().toString();
+            String paramName = propertyPath.contains(".")
+                    ? propertyPath.substring(propertyPath.lastIndexOf('.') + 1)
+                    : propertyPath;
+            validationErrors.put(paramName, violation.getMessage());
+        });
+        return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
     }
 
 }

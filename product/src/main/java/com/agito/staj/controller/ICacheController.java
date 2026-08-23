@@ -53,7 +53,7 @@ public interface ICacheController {
                     example = "products::0001"
             )
             @RequestParam("key")
-            @NotBlank(message = "Key cannot be blank")
+            @NotBlank(message = "{validation.param.key.notBlank}")
             String key
     );
 
@@ -82,7 +82,7 @@ public interface ICacheController {
                     example = "products::0001"
             )
             @RequestParam("key")
-            @NotBlank(message = "Key cannot be blank")
+            @NotBlank(message = "{validation.param.key.notBlank}")
             String key
     );
 }

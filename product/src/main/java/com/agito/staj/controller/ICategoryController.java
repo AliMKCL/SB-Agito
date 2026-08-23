@@ -67,7 +67,7 @@ public interface ICategoryController {
                     example = "1"
             )
             @RequestParam("id")
-            @NotNull(message = "ID cannot be null")
+            @NotNull(message = "{validation.param.id.notNull}")
             Integer id
     );
 
@@ -139,7 +139,7 @@ public interface ICategoryController {
                     example = "1"
             )
             @RequestParam("id")
-            @NotNull(message = "ID cannot be null")
+            @NotNull(message = "{validation.param.id.notNull}")
             Integer id
     );
 }
