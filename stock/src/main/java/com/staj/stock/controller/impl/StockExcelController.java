@@ -4,11 +4,13 @@ import com.staj.stock.controller.IStockExcelController;
 import com.staj.stock.service.StockService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+@Validated
 @RestController
 public class StockExcelController implements IStockExcelController {
 

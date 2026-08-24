@@ -11,6 +11,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.mail.MessagingException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -43,21 +47,21 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code,
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code,
             @Parameter(
                     name = "quantity",
                     description = "The quantity of the product available in stock",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10"
-            )@RequestParam int quantity,
+            )@RequestParam @Min(value = 0, message = "{validation.param.quantity.min}") int quantity,
             @Parameter(
                     name = "unitPrice",
                     description = "The price of 1 instance of the product.",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10.0"
-            ) @RequestParam double unitPrice);
+            ) @RequestParam @Min(value = 0, message = "{validation.param.unitPrice.min}") double unitPrice);
 
     /**
      *
@@ -83,14 +87,14 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code,
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code,
             @Parameter(
                     name = "quantity",
                     description = "The quantity of the product available in stock",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10"
-            )@RequestParam int quantity);
+            )@RequestParam @Min(value = 0, message = "{validation.param.quantity.min}") int quantity);
 
 
 
@@ -112,28 +116,28 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code,
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code,
             @Parameter(
                     name = "quantity",
                     description = "The quantity of the product available in stock",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10"
-            )@RequestParam int quantity,
+            )@RequestParam @Min(value = 0, message = "{validation.param.quantity.min}") int quantity,
             @Parameter(
                     name = "totalPricePaid",
                     description = "The total price paid for all the products",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "1800.00")
-            @RequestParam double totalPricePaid,
+            @RequestParam @Min(value = 0, message = "{validation.param.totalPricePaid.min}") double totalPricePaid,
             @Parameter(
                     name = "vendor",
                     description = "The name of the vendor the products were bought from.",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "Amazon")
-            @RequestParam String vendor);
+            @RequestParam @NotBlank(message = "{validation.param.vendor.notBlank}") String vendor);
 
 
     /**
@@ -164,7 +168,7 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code);
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code);
 
     /**
      *
@@ -196,14 +200,14 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code,
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code,
             @Parameter(
                     name = "quantity",
                     description = "The quantity of the product available in stock",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10"
-            )@RequestParam int quantity);
+            )@RequestParam @Min(value = 0, message = "{validation.param.quantity.min}") int quantity);
 
     /**
      *
@@ -233,7 +237,7 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code);
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code);
 
 
     /**
@@ -264,14 +268,14 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code,
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code,
             @Parameter(
                     name = "unitPrice",
                     description = "The unit price of the product",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10.0"
-            )@RequestParam double unitPrice);
+            )@RequestParam @Min(value = 0, message = "{validation.param.unitPrice.min}") double unitPrice);
 
 
     /**
@@ -303,14 +307,14 @@ public interface IAdminStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code,
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code,
             @Parameter(
                     name = "threshold",
                     description = "The stock threshold limit of the product",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10"
-            )@RequestParam int threshold);
+            )@RequestParam @Min(value = 0, message = "{validation.param.quantity.min}") int threshold);
 
 
     @Operation(

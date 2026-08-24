@@ -1,6 +1,7 @@
 package com.staj.stock.exception;
 
 import com.staj.stock.dto.ErrorResponseDto;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -77,5 +78,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
 
         return new ResponseEntity<>(errorResponseDto, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(
+            ConstraintViolationException exception, WebRequest webRequest) {
+        Map<String, String> validationErrors = new HashMap<>();
+        exception.getConstraintViolations().forEach(violation -> {
+            String propertyPath = violation.getPropertyPath().toString();
+            String paramName = propertyPath.contains(".")
+                    ? propertyPath.substring(propertyPath.lastIndexOf('.') + 1)
+                    : propertyPath;
+            validationErrors.put(paramName, violation.getMessage());
+        });
+        return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
     }
 }

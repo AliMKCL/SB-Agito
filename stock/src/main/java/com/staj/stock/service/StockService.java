@@ -18,7 +18,7 @@ import lombok.AllArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.core.Local;
+import com.staj.stock.util.Translator;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -38,11 +38,11 @@ import java.util.Iterator;
 @Service
 public class StockService {
 
-    private StockRepository stockRepository;
+    private final StockRepository stockRepository;
 
-    private StockSaleRepository stockSaleRepository;
+    private final StockSaleRepository stockSaleRepository;
 
-    private StockEntryRepository stockEntryRepository;
+    private final StockEntryRepository stockEntryRepository;
 
     private static final Logger log = LoggerFactory.getLogger(StockService.class);
 
@@ -195,7 +195,7 @@ public class StockService {
     @Transactional
     public void editThreshold(String code, int threshold) {
         if (threshold < 0) {
-            throw new IllegalArgumentException("Threshold cannot be negative");
+            throw new IllegalArgumentException(Translator.toLocale("error.stock.thresholdNegative"));
         }
         Stock item = StockValidator.validateStockExists(stockRepository.findById(code), code);
         item.setThreshold(threshold);
@@ -267,13 +267,13 @@ public class StockService {
 
         // File empty check
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("File is empty.");
+            throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.empty"));
         }
 
         // Check file extension (.xlsx or not).
         String originalName = file.getOriginalFilename();
         if (originalName == null || !originalName.endsWith(".xlsx")) {
-            throw new IllegalArgumentException("Invalid file format. Only .xlsx allowed.");
+            throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.invalidFormat"));
         }
 
         // Spring aspect, filter / interceptor
@@ -283,7 +283,7 @@ public class StockService {
         long bytes = file.getSize();
         double kilobytes = (double) bytes / 1024;
         if (kilobytes > maxSizeKB){
-            throw new FileSizeLimitExceededException("File size is too big.", (long) kilobytes, maxSizeKB);
+            throw new FileSizeLimitExceededException(Translator.toLocale("error.stock.excel.fileSizeLimit"), (long) kilobytes, maxSizeKB);
         }
 
         // Check if table contains the correct columns.
@@ -292,7 +292,7 @@ public class StockService {
             Sheet sheet = workbook.getSheetAt(0);
             Row headerRow = sheet.getRow(0);
             if (headerRow == null) {
-                throw new IllegalArgumentException("Excel file has no header row.");
+                throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.noHeader"));
             }
 
             String col0 = getCellValueAsString(headerRow.getCell(0));
@@ -301,16 +301,16 @@ public class StockService {
             String col3 = getCellValueAsString(headerRow.getCell(3));
 
             if (!"Code".equalsIgnoreCase(col0) && !"code".equalsIgnoreCase(col0)) {
-                throw new IllegalArgumentException("Invalid column header at index 0. Expected: Code.");
+                throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.invalidHeader", 0, "Code"));
             }
             if (!"Quantity".equalsIgnoreCase(col1) && !"quantity".equalsIgnoreCase(col1)) {
-                throw new IllegalArgumentException("Invalid column header at index 1. Expected: Quantity.");
+                throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.invalidHeader", 1, "Quantity"));
             }
             if (!"Total Price Paid".equalsIgnoreCase(col2) && !"totalPricePaid".equalsIgnoreCase(col2)) {
-                throw new IllegalArgumentException("Invalid column header at index 2. Expected: Total Price Paid.");
+                throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.invalidHeader", 2, "Total Price Paid"));
             }
             if (!"Vendor".equalsIgnoreCase(col3) && !"vendor".equalsIgnoreCase(col3)) {
-                throw new IllegalArgumentException("Invalid column header at index 3. Expected: Vendor.");
+                throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.invalidHeader", 3, "Vendor"));
             }
 
             return workbook;
@@ -366,7 +366,7 @@ public class StockService {
 
     private double getCellValueAsDouble(Cell cell, String columnName, int rowIndex) {
         if (cell == null || cell.getCellType() == org.apache.poi.ss.usermodel.CellType.BLANK) {
-            throw new IllegalArgumentException(String.format("Row %d: Column '%s' is empty but a numerical value was expected.", rowIndex + 1, columnName));
+            throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.cellEmptyNumeric", rowIndex + 1, columnName));
         }
         switch (cell.getCellType()) {
             case NUMERIC:
@@ -376,7 +376,7 @@ public class StockService {
                 try {
                     return Double.parseDouble(stringVal);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException(String.format("Row %d: Expected a numerical value in column '%s', but found text: \"%s\".", rowIndex + 1, columnName, stringVal));
+                    throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.cellExpectedNumeric", rowIndex + 1, columnName, stringVal));
                 }
             case FORMULA:
                 try {
@@ -386,11 +386,11 @@ public class StockService {
                         String valFormula = cell.getStringCellValue().trim();
                         return Double.parseDouble(valFormula);
                     } catch (Exception e) {
-                        throw new IllegalArgumentException(String.format("Row %d: Expected a formula yielding a numerical value in column '%s'.", rowIndex + 1, columnName));
+                        throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.cellExpectedFormulaNumeric", rowIndex + 1, columnName));
                     }
                 }
             default:
-                throw new IllegalArgumentException(String.format("Row %d: Expected a numerical value in column '%s', but found cell type: %s.", rowIndex + 1, columnName, cell.getCellType()));
+                throw new IllegalArgumentException(Translator.toLocale("error.stock.excel.cellInvalidType", rowIndex + 1, columnName, cell.getCellType()));
         }
     }
 

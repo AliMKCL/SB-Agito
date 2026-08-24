@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +43,7 @@ public interface IAdminMailController {
                     in = ParameterIn.QUERY,
                     example = "example@gmail.com"
             )
-            @RequestParam String to,
+            @RequestParam @NotBlank(message = "{validation.param.to.notBlank}") @Email(message = "{validation.param.email.invalid}") String to,
             @Parameter(
                     name = "subject",
                     description = "The subject of the mail to send.",
@@ -49,7 +51,7 @@ public interface IAdminMailController {
                     in = ParameterIn.QUERY,
                     example = "Low stock items"
             )
-            @RequestParam String subject,
+            @RequestParam @NotBlank(message = "{validation.param.subject.notBlank}") String subject,
             @Parameter(
                     name = "body",
                     description = "The body of the mail to send.",
@@ -57,6 +59,6 @@ public interface IAdminMailController {
                     in = ParameterIn.QUERY,
                     example = "Items low on stock are: ......"
             )
-            @RequestParam String body
+            @RequestParam @NotBlank(message = "{validation.param.body.notBlank}") String body
     );
 }

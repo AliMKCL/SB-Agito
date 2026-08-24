@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,5 +52,5 @@ public interface IStockExcelController {
             @Parameter(
                     description = "The Excel file containing StockEntry records. Headers should be: code, quantity, totalPricePaid, vendor.",
                     required = true
-            ) @RequestParam("file") MultipartFile file) throws IOException;
+            ) @RequestParam("file") @NotNull(message = "{validation.param.file.notNull}") MultipartFile file) throws IOException;
 }

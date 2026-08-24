@@ -12,6 +12,6 @@ public class TestConfig {
 
     @Bean
     public Gmail gmailService() {
-        return Mockito.mock(Gmail.class);
+        return Mockito.mock(Gmail.class, Mockito.RETURNS_DEEP_STUBS);
     }
 }

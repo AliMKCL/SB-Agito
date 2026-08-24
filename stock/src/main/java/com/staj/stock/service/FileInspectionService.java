@@ -1,6 +1,7 @@
 package com.staj.stock.service;
 
 import com.staj.stock.util.ExcelSignatureValidator;
+import com.staj.stock.util.Translator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -46,7 +47,7 @@ public class FileInspectionService {
      */
     public void inspect(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing or empty file.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, Translator.toLocale("error.file.missing"));
         }
 
         String filename = file.getOriginalFilename() != null ? file.getOriginalFilename() : "unknown.xlsx";
@@ -59,7 +60,7 @@ public class FileInspectionService {
             log.warn("[FILE INSPECTION] REJECTED (size) — file='{}' is {} bytes, limit is {} bytes",
                     filename, size, MAX_FILE_SIZE_BYTES);
             throw new ResponseStatusException(
-                    HttpStatus.PAYLOAD_TOO_LARGE, "File exceeds the 15 MB limit.");
+                    HttpStatus.PAYLOAD_TOO_LARGE, Translator.toLocale("error.file.sizeLimit"));
         }
 
         byte[] fileBytes;
@@ -68,7 +69,7 @@ public class FileInspectionService {
         } catch (IOException e) {
             log.error("[FILE INSPECTION] Failed to read file bytes for '{}': {}", filename, e.getMessage());
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Could not read uploaded file content.");
+                    HttpStatus.BAD_REQUEST, Translator.toLocale("error.file.readError"));
         }
 
         // 2. Signature / MIME check via Apache Tika
@@ -76,7 +77,7 @@ public class FileInspectionService {
             log.warn("[FILE INSPECTION] REJECTED (signature) — file='{}' is not a valid Excel document", filename);
             throw new ResponseStatusException(
                     HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-                    "File must be a valid Excel document (.xlsx or .xls).");
+                    Translator.toLocale("error.file.invalidExcelSignature"));
         }
 
         // 3. Macro check
@@ -84,7 +85,7 @@ public class FileInspectionService {
             log.warn("[FILE INSPECTION] REJECTED (macros) — file='{}' contains VBA macros", filename);
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Macro-enabled Excel files are not permitted.");
+                    Translator.toLocale("error.file.macroNotPermitted"));
         }
 
         // 4. Antivirus scan via ClamAV
@@ -93,13 +94,13 @@ public class FileInspectionService {
                 log.warn("[FILE INSPECTION] REJECTED (antivirus) — ClamAV flagged file='{}'", filename);
                 throw new ResponseStatusException(
                         HttpStatus.UNPROCESSABLE_ENTITY,
-                        "File was rejected by the antivirus scanner.");
+                        Translator.toLocale("error.file.antivirusFlagged"));
             }
         } catch (ClamAvScannerService.ClamAvUnavailableException e) {
             log.error("[FILE INSPECTION] REJECTED (scanner unavailable) — file='{}': {}", filename, e.getMessage());
             throw new ResponseStatusException(
                     HttpStatus.SERVICE_UNAVAILABLE,
-                    "The antivirus scanner is currently unavailable. Please try again later.");
+                    Translator.toLocale("error.file.antivirusUnavailable"));
         }
 
         log.info("[FILE INSPECTION] All checks passed — file='{}', size={} bytes", filename, fileBytes.length);

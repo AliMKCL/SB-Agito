@@ -8,11 +8,13 @@ import com.staj.stock.service.AnalysisService.ProfitAnalysisReport;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @AllArgsConstructor
+@Validated
 @RestController
 public class StockCalculationController implements IStockCalculationController {
 

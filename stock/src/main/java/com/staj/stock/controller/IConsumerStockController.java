@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,7 +47,7 @@ public interface IConsumerStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code);
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code);
 
     /**
      *
@@ -75,13 +78,13 @@ public interface IConsumerStockController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            )@RequestParam String code,
+            )@RequestParam @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code,
             @Parameter(
                     name = "quantity",
                     description = "The quantity of the product available in stock",
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "10"
-            )@RequestParam int quantity);
+            )@RequestParam @Min(value = 1, message = "{validation.param.quantity.min}") int quantity);
 
 }

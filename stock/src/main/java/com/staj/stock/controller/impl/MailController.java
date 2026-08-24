@@ -2,10 +2,13 @@ package com.staj.stock.controller.impl;
 
 import com.staj.stock.controller.IAdminMailController;
 import com.staj.stock.service.MailService;
+import com.staj.stock.util.Translator;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController
 public class MailController implements IAdminMailController {
 
@@ -22,9 +25,9 @@ public class MailController implements IAdminMailController {
             String body) {
         try {
             mailService.sendEmail(to, subject, body);
-            return "Email sent successfully!";
+            return Translator.toLocale("mail.sent.success");
         } catch (Exception e) {
-            return "Failed to send email: " + e.getMessage();
+            return Translator.toLocale("mail.sent.failure", e.getMessage());
         }
     }
 

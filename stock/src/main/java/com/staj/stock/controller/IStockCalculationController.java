@@ -15,6 +15,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -72,5 +75,5 @@ public interface IStockCalculationController {
                     required = true,
                     in = ParameterIn.QUERY,
                     example = "0001"
-            ) @RequestParam(name = "code") String code);
+            ) @RequestParam(name = "code") @NotBlank(message = "{validation.param.code.notBlank}") @Size(min = 4, max = 4, message = "{validation.param.code.size}") String code);
 }
