@@ -2,56 +2,55 @@ package com.agito.staj.repository.impl;
 
 import com.agito.staj.dto.SearchProductDto;
 import com.agito.staj.entity.Category;
-import com.agito.staj.entity.FilterCriteria;
 import com.agito.staj.entity.Product;
-import com.agito.staj.entity.SearchOperation;
+import com.agito.staj.entity.ProductTranslation;
 import com.agito.staj.exception.IncompatibleTypesException;
-import com.agito.staj.util.Translator;
 import com.agito.staj.repository.CategoryRepository;
 import com.agito.staj.repository.ICustomProductRepository;
-import com.agito.staj.repository.IProductRepository;
-import com.agito.staj.util.GenericQueryUtil;
+import com.agito.staj.util.Translator;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.criteria.*;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-import static com.agito.staj.util.GenericQueryUtil.buildPredicates;
-
-@RequiredArgsConstructor
 @Repository
 public class CustomProductRepository implements ICustomProductRepository {
 
     private final EntityManager entityManager;
-
-    private final IProductRepository productRepository;
-
     private final CategoryRepository categoryRepository;
 
+    public CustomProductRepository(EntityManager entityManager, CategoryRepository categoryRepository) {
+        this.entityManager = entityManager;
+        this.categoryRepository = categoryRepository;
+    }
 
     @Override
     public List<Product> findAllByCriteria(SearchProductDto searchProductDto) {
-
-
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Product> criteriaQuery = criteriaBuilder.createQuery(Product.class);
 
-        // SELECT FROM product
         Root<Product> root = criteriaQuery.from(Product.class);
+        List<Predicate> predicates = new ArrayList<>();
 
-        List<FilterCriteria> filters = new ArrayList<>();
+        if (searchProductDto.getCode() != null && !searchProductDto.getCode().isBlank()) {
+            String pattern = "%" + searchProductDto.getCode().toLowerCase() + "%";
+            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("code")), pattern));
+        }
 
+        if (searchProductDto.getName() != null && !searchProductDto.getName().isBlank()) {
+            Join<Product, ProductTranslation> translationJoin = root.join("translations", JoinType.LEFT);
+            Locale currentLocale = LocaleContextHolder.getLocale();
+            String activeLang = currentLocale != null ? currentLocale.getLanguage() : "en";
+            String pattern = "%" + searchProductDto.getName().toLowerCase() + "%";
 
-        filters.add(new FilterCriteria("code", SearchOperation.LIKE, searchProductDto.getCode()));
-
-        filters.add(new FilterCriteria("name", SearchOperation.LIKE, searchProductDto.getName()));
+            Predicate nameMatch = criteriaBuilder.like(criteriaBuilder.lower(translationJoin.get("name")), pattern);
+            Predicate langMatch = criteriaBuilder.equal(translationJoin.get("languageCode"), activeLang);
+            predicates.add(criteriaBuilder.and(langMatch, nameMatch));
+        }
 
         // Gets the children of the input categoryId as well (Ex: Input 2 gives items with categoryId 3 and 4).
         Category category = searchProductDto.getCategoryId() != null
@@ -60,13 +59,12 @@ public class CustomProductRepository implements ICustomProductRepository {
         if (category != null) {
             List<Integer> categoryIds = new ArrayList<>();
             collectCategoryIds(category, categoryIds);
-            filters.add(new FilterCriteria("category.id", SearchOperation.IN, categoryIds));
+            predicates.add(root.get("category").get("id").in(categoryIds));
         }
 
-
         // Parses the price filter string (Ex: ">100.0" or "<500") into a GREATER_THAN or LESS_THAN predicate.
-        if (searchProductDto.getPrice() != null) {
-            String priceFilter = searchProductDto.getPrice();
+        if (searchProductDto.getPrice() != null && !searchProductDto.getPrice().isBlank()) {
+            String priceFilter = searchProductDto.getPrice().trim();
             char operator = priceFilter.charAt(0);
             String numericPart = priceFilter.substring(1);
 
@@ -79,28 +77,25 @@ public class CustomProductRepository implements ICustomProductRepository {
                 );
             }
 
-            SearchOperation operation = (operator == '>') ? SearchOperation.GREATER_THAN
-                    : SearchOperation.LESS_THAN;
-
-            filters.add(new FilterCriteria("price", operation, parsedPrice));
+            if (operator == '>') {
+                predicates.add(criteriaBuilder.greaterThan(root.get("price"), parsedPrice));
+            } else if (operator == '<') {
+                predicates.add(criteriaBuilder.lessThan(root.get("price"), parsedPrice));
+            }
         }
 
-
-        Predicate[] predicates = buildPredicates(criteriaBuilder, root, filters);
-        criteriaQuery.where(predicates);
-
+        criteriaQuery.select(root).distinct(true);
+        if (!predicates.isEmpty()) {
+            criteriaQuery.where(predicates.toArray(new Predicate[0]));
+        }
         criteriaQuery.orderBy(criteriaBuilder.asc(root.get("code")));
-        List<Product> results = entityManager.createQuery(criteriaQuery).getResultList();
 
-
-        // Pagination to limit return size. (Add via a Pageable object to un-hardcode.
-        // query.setFirstResult(0); // offset
-        // query.setMaxResults(20); // limit per fetch
-        return results;
+        return entityManager.createQuery(criteriaQuery).getResultList();
     }
 
     /**
      * Used to find all items belonging to a child category of a category used during filtering.
+     *
      * @param category
      * @param ids
      */
@@ -111,4 +106,3 @@ public class CustomProductRepository implements ICustomProductRepository {
         }
     }
 }
-

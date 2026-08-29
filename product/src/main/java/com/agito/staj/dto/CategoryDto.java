@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -13,9 +11,8 @@ import java.io.Serializable;
         name = "Category",
         description = "Schema to hold category information"
 )
-@NoArgsConstructor
-@Data
 public class CategoryDto implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Schema(
             description = "ID of the category", example = "1"
@@ -34,4 +31,37 @@ public class CategoryDto implements Serializable {
             description = "Parent category ID", example = "2"
     )
     private Integer parentId;
+
+    public CategoryDto() {
+    }
+
+    public CategoryDto(Integer id, String name, Integer parentId) {
+        this.id = id;
+        this.name = name;
+        this.parentId = parentId;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
+    }
 }

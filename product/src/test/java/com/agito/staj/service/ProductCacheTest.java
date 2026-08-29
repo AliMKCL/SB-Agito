@@ -3,19 +3,17 @@ package com.agito.staj.service;
 import com.agito.staj.dto.ProductDto;
 import com.agito.staj.entity.Category;
 import com.agito.staj.entity.Product;
-import com.agito.staj.repository.IProductRepository;
 import com.agito.staj.repository.CategoryRepository;
+import com.agito.staj.repository.IProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cglib.core.Local;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.cache.CacheManager;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,24 +45,31 @@ public class ProductCacheTest {
 
     @BeforeEach
     void setUp() {
-        // Clear caches before each test
-        if (cacheManager.getCache("products") != null) {
-            cacheManager.getCache("products").clear();
+        for (String cacheName : cacheManager.getCacheNames()) {
+            if (cacheManager.getCache(cacheName) != null) {
+                cacheManager.getCache(cacheName).clear();
+            }
         }
-        if (cacheManager.getCache("categories") != null) {
-            cacheManager.getCache("categories").clear();
-        }
+        reset(productRepository);
+        reset(categoryRepository);
 
         Category category = new Category();
         category.setId(1);
         category.setName("Electronics");
 
         dummyProduct = new Product("0001", "Laptop", category, 1200.0, true);
-        productRepository.save(dummyProduct);
     }
 
     @Test
     public void testCacheIsActuallyFaster() throws InterruptedException {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            if (cacheManager.getCache(cacheName) != null) {
+                cacheManager.getCache(cacheName).clear();
+            }
+        }
+        reset(productRepository);
+        reset(categoryRepository);
+
         // Stub the repository to sleep for 100ms to simulate a slow database/network call
         when(productRepository.findByCode("0001")).thenAnswer(invocation -> {
             Thread.sleep(100);
@@ -109,7 +114,7 @@ public class ProductCacheTest {
 
         // Call find again (cache hit)
         var startTime = System.currentTimeMillis();
-        ProductDto productDto = productService.find("0001");
+        productService.find("0001");
         var endTime = System.currentTimeMillis();
         var diff = endTime - startTime;
         log.info("Product found in cache: retreived in {} ms", diff);

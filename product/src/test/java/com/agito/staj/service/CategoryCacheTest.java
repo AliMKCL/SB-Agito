@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.cache.CacheManager;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Optional;
 
@@ -40,9 +40,12 @@ public class CategoryCacheTest {
 
     @BeforeEach
     void setUp() {
-        if (cacheManager.getCache("categories") != null) {
-            cacheManager.getCache("categories").clear();
+        for (String cacheName : cacheManager.getCacheNames()) {
+            if (cacheManager.getCache(cacheName) != null) {
+                cacheManager.getCache(cacheName).clear();
+            }
         }
+        reset(categoryRepository);
 
         dummyCategory = new Category();
         dummyCategory.setId(1);
@@ -51,6 +54,13 @@ public class CategoryCacheTest {
 
     @Test
     public void testCacheIsActuallyFaster() throws InterruptedException {
+        for (String cacheName : cacheManager.getCacheNames()) {
+            if (cacheManager.getCache(cacheName) != null) {
+                cacheManager.getCache(cacheName).clear();
+            }
+        }
+        reset(categoryRepository);
+
         // Stub the repository to sleep for 100ms to simulate a slow database/network call
         when(categoryRepository.findById(1)).thenAnswer(invocation -> {
             Thread.sleep(100);
@@ -95,7 +105,7 @@ public class CategoryCacheTest {
 
         // Call findCategoryById again (cache hit)
         var startTime = System.currentTimeMillis();
-        CategoryDto categoryDto = categoryService.findCategoryById(1);
+        categoryService.findCategoryById(1);
         var endTime = System.currentTimeMillis();
         var diff = endTime - startTime;
         log.info("Category found in cache: retrieved in {} ms", diff);
@@ -105,7 +115,7 @@ public class CategoryCacheTest {
         doNothing().when(categoryRepository).delete(dummyCategory);
         categoryService.deleteCategory(1);
 
-        // Calling findCategoryById again should miss cache and hit repository again (invocation count goes to 2)
+        // Calling findCategoryById again should miss cache and hit repository again (invocation count goes to 3)
         startTime = System.currentTimeMillis();
         try {
             categoryService.findCategoryById(1);

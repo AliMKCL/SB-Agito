@@ -4,15 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-@Schema(
-        name = "SearchProduct",
-        description = "Schema to hold SearchProduct information that is provided during the fetchAll endpoint."
-)
 public class SearchProductDto {
     @Schema(
             description = "Code of the product", example = "001"
@@ -44,4 +36,46 @@ public class SearchProductDto {
     )
     @Nullable
     private String price;
+
+    public SearchProductDto() {
+    }
+
+    public SearchProductDto(String code, String name, Integer categoryId, String price) {
+        this.code = code;
+        this.name = name;
+        this.categoryId = categoryId;
+        this.price = price;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
 }
