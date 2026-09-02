@@ -1,13 +1,16 @@
 ### Ports
 - 8070: eurekaserver
-- 8085: product
-- 8090: stock
 - 9000: gatewayserver
 - 8000: keycloak
 - 8443: nginx (Reverse proxy to bypass Keycloak https requirement)
 - 9092: kafka
 - 8888: temporary google auth server
 - 3310: ClamAv (File virus scanning)
+- 6379: redis
+
+Disabled but uncommented during development (Normally accessed only via the gatewayserver):
+- 8085: product
+- 8090: stock
 
 Enter keycloak via https://localhost:8443
 

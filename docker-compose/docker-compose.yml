@@ -170,8 +170,8 @@ services:
   product-service:
     image: product:latest
     container_name: product-service
-    ports:
-      - "8085:8085"
+    #ports:
+    #  - "8085:8085"
     depends_on:
       productDB:
         condition: service_healthy
@@ -200,7 +200,7 @@ services:
     image: stock:latest
     container_name: stock-service
     ports:
-      - "8090:8090"
+     # - "8090:8090"
       - "8888:8888" # For the temporary Google auth server for gmail.
     depends_on:
       stockDB:
